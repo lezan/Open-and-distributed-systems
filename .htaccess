@@ -1,0 +1,9 @@
+Options +FollowSymLinks
+RewriteEngine on
+RewriteRule ^cancella/recensione/(.*) /rimuoviRecensione.php?ISBN=$1
+RewriteRule ^modifica/recensione/(.*) /modificaRecensione.php?ISBN=$1
+RewriteRule ^cancella/libro/(.*) /rimuoviLibro.php?ISBN=$1
+RewriteRule ^modifica/libro/(.*) /modificaLibro.php?ISBN=$1
+RewriteRule ^books/(.*) /libro.php?ISBN=$1
+RewriteRule ^autore/(.*) /autoreLibro.php?autore=$1
+RewriteRule ^libreria/(.*) /profiloPubblicoLibreria.php?libreria=$1
