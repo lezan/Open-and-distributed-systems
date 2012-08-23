@@ -412,138 +412,107 @@ public class Server {
 		}
 	}
 
-	public int editCampiLibreria(String[] campi) {
+	public int editLibreria(String[] campi) {
 		if (!connectDatabase()) {
 			return -1;
 		}
-		// boolean
-		// password,email,nome,indirizzoLibreria,cittaLibreria,capLibreria,telefonoLibreria,telefono2Libreria;
-		// password=email=nome=indirizzoLibreria=cittaLibreria=capLibreria=telefonoLibreria=telefono2Libreria=false;
-		boolean primo = true;
-		String query = "";
-		try {
-			for (int i = 0; i < 9; i++) {
-				if (i == 0) {
-					if (checkPasswordUsers(campi[9], campi[i])) {
-						if (!(campi[i + 1].equals(""))
-								&& checkPassword(campi[i + 1])) {
-							primo = false;
-							// password=true;
-							query = "UPDATE vendors SET password=?";
-						} else {
-							return 1; // Errore nella nuova password
-						}
-					} else {
-						return 2; // Errore nella vecchia password
+		try{
+			String query;
+			PreparedStatement prstmt;
+			/*Controllo per eventuale cambio password*/
+			if(!campi[0].equals("")&&!campi[1].equals("")){
+				if(checkPasswordLibrerie(campi[10],campi[0]))	{
+					if(checkPassword(campi[1])){
+					query = "UPDATE vendors SET password=? WHERE email=?;";
+					prstmt = con.prepareStatement(query);
+					prstmt.setString(1, campi[1]);
+					prstmt.setString(2, campi[10]);
+					prstmt.executeUpdate();
 					}
-					i++; // Così salta i==1, dove c'è la nuova password e non
-							// viene usato nel ciclo for
-				} else if (i == 2) {
-					if (!(campi[i].contains("@"))) {
-						if (checkEmailUsers(campi[i])) {
-							// email=true;
-							if (primo) {
-								query = "UPDATE vendors SET email=?";
-								primo = false;
-							} else {
-								query = query + ",email=?";
-							}
-						} else {
-							return 3; // email inserita è già usata
-						}
-					} else {
-						return 4; // Email non valida
+					else{
+						System.out.println("password nuova errata");
+						return 1;
 					}
-				} else if (i == 3) {
-					if (!(campi[i].equals(""))) {
-						// nome = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE vendors SET nome=?";
-						} else {
-							query = query + ",nome=?";
-						}
-					}
-				} else if (i == 4) {
-					if (!(campi[i].equals(""))) {
-						// indirizzoLibreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE vendors SET indirizzo=?";
-						} else {
-							query = query + ",indirizzo=?";
-						}
-					}
-				} else if (i == 5) {
-					if (!(campi[i].equals(""))) {
-						// cittaLibreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE vendors SET citta=?";
-						} else {
-							query = query + ",citta=?";
-						}
-					}
-				} else if (i == 6) {
-					if (!(campi[i].equals(""))) {
-						// capLibreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE vendors SET cap=?";
-						} else {
-							query = query + ",cap=?";
-						}
-					}
-				} else if (i == 7) {
-					if (!(campi[i].equals(""))) {
-						// telefonoLibreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE vendors SET telefono=?";
-						} else {
-							query = query + ",telefono=?";
-						}
-					}
-				} else if (i == 8) {
-					if (!(campi[i].equals(""))) {
-						// telefono2Libreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE vendors SET telefono2=?";
-						} else {
-							query = query + ",telefono2=?";
-						}
-					}
+				}
+				else{
+					System.out.println("password vecchia errata");
+					return 2;
 				}
 			}
-			query = query + " WHERE partita_iva=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			for (int i = 0; i <= 9; i++) {
-				if (i == 0) {
-					prstmt.setString(i, campi[i]);
-					i++;
-				} else {
-					prstmt.setString(i, campi[i]);
+			/*Controllo partita Iva*/
+			ResultSet rs;
+			query="SELECT email FROM vendors WHERE partita_iva=?;";
+			prstmt = con.prepareStatement(query);
+			prstmt.setString(1, campi[9]);
+			rs=prstmt.executeQuery();
+			if(rs.next()&&!rs.getString("email").equals(campi[10]))
+			{
+				prstmt.close();
+				rs.close();
+				return 3;
+			}
+			/*Controllo nome*/
+			query="SELECT email FROM vendors WHERE nome=?;";
+			prstmt = con.prepareStatement(query);
+			prstmt.setString(1, campi[3]);
+			rs=prstmt.executeQuery();
+			if(rs.next()&&!rs.getString("email").equals(campi[10]))
+			{
+				prstmt.close();
+				rs.close();
+				return 4;
+			}
+			/*Se la mail vecchia e quella nuova non coincidono, controllo l'unicità della nuova mail*/
+			if(!campi[2].equals(campi[10])){
+				query="SELECT nome FROM vendors WHERE email=?;";
+				prstmt = con.prepareStatement(query);
+				prstmt.setString(1, campi[2]);
+				rs=prstmt.executeQuery();
+				if(rs.next())/*Email già esistente*/
+				{
+					prstmt.close();
+					rs.close();
+					return 5;
 				}
-			}/*
-			 * /*if(password=true) { prstmt.setString(1, campi[0]); }
-			 * if(email=true) { prstmt.setString(1, campi[2]); } if(nome=true) {
-			 * prstmt.setString(1, campi[3]); } if(indirizzoLibreria=true) {
-			 * prstmt.setString(1, campi[4]); } if(cittaLibreria=true) {
-			 * prstmt.setString(1, campi[5]); } if(capLibreria=true) {
-			 * prstmt.setString(1, campi[6]); } if(telefonoLibreria=true) {
-			 * prstmt.setString(1, campi[7]); } if(telefono2Libreria=true) {
-			 * prstmt.setString(1, campi[8]); } prstmt.setString(1, campi[9]);
-			 */
+				else{/*Procedo con l'aggiornamento e segnalo che è cambiata la mail*/
+					query="UPDATE vendors SET email=?,nome=?,indirizzo=?,citta=?,cap=?,telefono=?,fax=?,partita_iva=? WHERE email=?;";
+					prstmt = con.prepareStatement(query);
+					prstmt.setString(1, campi[2]);
+					prstmt.setString(2, campi[3]);
+					prstmt.setString(3, campi[4]);
+					prstmt.setString(4, campi[5]);
+					prstmt.setString(5, campi[6]);
+					prstmt.setString(6, campi[7]);
+					prstmt.setString(7, campi[8]);
+					prstmt.setString(8, campi[9]);
+					prstmt.setString(9, campi[10]);
+					prstmt.executeUpdate();
+					prstmt.close();
+					rs.close();
+					return 6;
+				}
+			}
+			/*La mail non è cambiata*/
+			query="UPDATE vendors SET email=?,nome=?,indirizzo=?,citta=?,cap=?,telefono=?,fax=?,partita_iva=? WHERE email=?;";
+			prstmt = con.prepareStatement(query);
+			prstmt.setString(1, campi[2]);
+			prstmt.setString(2, campi[3]);
+			prstmt.setString(3, campi[4]);
+			prstmt.setString(4, campi[5]);
+			prstmt.setString(5, campi[6]);
+			prstmt.setString(6, campi[7]);
+			prstmt.setString(7, campi[8]);
+			prstmt.setString(8, campi[9]);
+			prstmt.setString(9, campi[10]);
 			prstmt.executeUpdate();
 			prstmt.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-			return 5;
+			rs.close();
+			return 0;
 		}
-		return 0;
+		catch(SQLException e){
+			e.printStackTrace();
+			return -1;
+		}
 	}
 
 	/*
@@ -1449,6 +1418,33 @@ public class Server {
 			result[5] = rs.getString("cap");
 			result[6] = rs.getString("telefono");
 			result[7] = rs.getString("telefono2");
+			prstmt.close();
+			rs.close();
+		} catch (SQLException e) {
+			System.out.println("Errore. Impossibile leggere i dati.\n");
+		}
+		return result;
+	}
+	
+	public String[] leggiDatiLibreria(String email){
+		String[] result=new String[8];
+		if (!connectDatabase()) {
+			return result;
+		}
+		try {
+			String query = "SELECT * FROM vendors WHERE email=?;";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1, email);
+			ResultSet rs = prstmt.executeQuery();
+			rs.next();
+			result[0] = rs.getString("nome");
+			result[1] = rs.getString("email");
+			result[2] = rs.getString("indirizzo");
+			result[3] = rs.getString("citta");
+			result[4] = rs.getString("cap");
+			result[5] = rs.getString("telefono");
+			result[6] = rs.getString("fax");
+			result[7] = rs.getString("partita_iva");
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {

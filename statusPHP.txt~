@@ -1,4 +1,4 @@
-aggiungiRecensione.php ->G
+aggiungiRecensione.php X
 autoreLibro.php->L
 cerca.php->L
 index.php->L
@@ -9,7 +9,7 @@ libro.php->L
 login.php->L
 modificaLibro.php X
 modificaRecensione.php->G
-profiloLibreria.php ->G
+profiloLibreria.php X
 profiloPubblicoLibreria.php->L
 profiloUser.php->G
 recensioniUtente.php->G
