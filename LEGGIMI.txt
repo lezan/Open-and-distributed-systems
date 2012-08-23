@@ -1,0 +1,252 @@
+<:__
+##########################################################################################
+######################---------LEGGIMI TUTTO E ATTENTAMENTE---------######################
+##########################################################################################
+__|>
+
+<:__
+####                                             ####
+## ULTERIORI COMMENTI ALL'INTERNO DI OGNI FILE PHP ##
+####                                             ####
+__|>
+
+<:__
+###            ###
+# PRIMO COMMENTO #
+###            ###
+
+_Mi sono dimenticato di mettere i controlli sulle chiamate Soap in php, cioè non controllo se vanno a buon fine.
+Bisogna farlo nella funzione di login (sia utente che libreria), di iscrizione ( sia utente che libreria), di edit 
+del profilo utente.
+Mi pare che nella funzione di ricerca l'ho fatto, dato che stampavo che non aveva trovato nulla ( sia ricerca normale 
+che quella avanzata).
+__|>
+
+<:__
+###              ###
+# SECONDO COMMENTO #
+###              ###
+
+_Bisogna aggiungere tutte le "action" delle "form".
+__|>
+
+<:__
+###            ###
+# TERZO COMMENTO #
+###            ###
+
+_Bisogna aggiungere la funzione in Java per editare il profilo della libreria.
+__|>
+
+<:__
+###             ###
+# QUARTO COMMENTO #
+###             ###
+_Possiamo aggiungere la ricerca anche per libreria, così si posso ottenere tutti i libri messi in vendita da una
+libreria. Così evitiamo anche di fare una pagina per ogni libreria, no? Oppure vogliamo fare una pagina per ogni 
+libreria?! (La pagina pubblica dell'utente normale non c'è).
+__|>
+
+<:__
+###             ###
+# QUINTO COMMENTO #
+###             ###
+_Ho problemi con il creare la pagina per ogni libro. Come si fa a capire quale libro stiamo vedendo?
+Dal link?! Potrebbe essere una idea, forse.
+Tanto per ricerche usiamo come metodo get, così c'è un link esplicito per ogni libro.
+Possiamo fare così: il link di ogni libro è 'link-default'+isbn. Poi all'interno della pagina si fa una ricerca per isbn 
+e si recupera il titolo del libro.
+Che ne pensi?
+IMPORTANTE: Okei, credo di aver risolto questo problema.
+Praticamente utilizziamo il modulo mod_rewrite che permette di risolvere dei problemi che erano sorti.
+Allora si fa così: ogni link che devi puntare ad un libro utilizza l'url www.miosito.it/books/titololibro.html
+Il rewrite opera così: ogni link che punta a www.miosito.it/books/titololibro.html lo fa puntare a 
+www.miosito.it/libro.php
+libro.php prende l'url, estrae titololibro; utilizza una funzione String leggiISBN(string titolo) per prelevare ulteriori 
+informazioni per stampare le info relative al libro.
+Il campo titolo della tabella dei libri è unico, no?
+Facciamo così: la pagina prende le info dal catalogo ( quello dove c'è un solo libro). Poi sotto c'è la tabella prezzi.
+Lì andiamo a prendere le info da i libri messi in vendita dalle librerie.
+Che ne pensi?
+__|>
+
+<:__
+###            ###
+# SESTO COMMENTO #
+###            ###
+_Bisogna scrivere le RewriteRules per il problema relativo al QUINTO COMMENTO. Devono essere messe nel file .htaccess.
+__|>
+
+<:__
+###              ###
+# SETTIMO COMMENTO #
+###              ###
+_Ho corretto tutte le funzione di ricerca in Java. Ora restituiscono un ArrayList di ArrayList di Libro. Così dovrebbe 
+andare, dato che in php recuperiamo i dati con un matrice.
+Bisogna ancora aggiungere la funzione di ricerca che riceve un array di campi(grandezza variabile) per la ricerca 
+avanzata che è stata introdotta in PHP. La funzione è da aggiungere in Java, ovviamente.
+__|>
+
+<:__
+###             ###
+# OTTAVO COMMENTO #
+###             ###
+_Ho ricontrollato e sistemato le pagine:
+ -index.php;
+ -cerca.php:
+ -ricercaAvanzata.php;
+ -iscrizioneUser.php;
+ -iscrizioneLibreria.php;
+ -libriLibreria.php;
+ -recensioniUtente.php
+Tutte le funzione Java utilizzate all'interno di queste pagine sono state create,aggiornate e sistemate.
+C'è da scegliere come mostrare gli errori di iscrizione degli user e delle librerie (al momento ci sono sono degli echo).
+
+<:__
+###           ###
+# NONO COMMENTO #
+###           ###
+_Controllare le return delle chiamate Soap, perché non ho capito se servono.
+Per esempio:
+ $result=$client->ricercaLibreria($nomeLibreria);
+ if($result[0][0]->return=='')
+Credo che non ci sia ovunque.
+Deve andarci sempre?
+__|>
+
+<:__
+###             ###
+# DECIMO COMMENTO #
+###             ###
+_Questione molto importante riguardo la pagina libriLibreria.php
+All'interno sono presenti i link Modifica e Cancella, che devono modificare o cancellare il libro scelto dalla libreria.
+Le funzioni per modificare e cancellare in Java sono state create, ma occorre create le pagine php che fanno questo lavoro.
+Non so fare in altro modo se non così: Modifica e Cancella sono due link che puntano a due pagine differenti(modificaLibro.php 
+e cancellaLibro.php), le quali prendono dall'url il libro su cui devono operare.
+Quindi occorre scrivere le RewriteRules anche per questo problema.
+In questo modo si risolve.
+Le pagine modificaLibro.php e cancellaLibro.php devono ancora essere realizzate.
+Il link modifica punta alla pagina /modifica/libro/isbnLibro, mentre il link cancella punta alla pagina /cancella/libro/isbnLibro.
+Stesso discorso vale per la pagina recensioniUtente.php
+Anche qui c'è la possibilità di moficare e cancellare la recensione attraverso i bottini Modifica e Cancella.
+I due link puntano alle pagine /modifica/recensioni/isbnLibro e /cancella/recensioni/isbnLibro ma andranno redirette 
+attraverso RewriteRules modificaRecensione.php e cancellaRecensione.php
+Le funzioni che si occupa di modificare e cancellare le recensioni in Java sono state realizzate.
+__|>
+
+<:__
+###                 ###
+# UNDICESIMO COMMENTO #
+###                 ###
+_Realizzare le tabelle della basi di dati, così da non creare più problemi con i nomi degli attributi, delle tabelle.
+__|>
+
+<:__
+###                 ###
+# DODICESIMO COMMENTO #
+###                 ###
+_Controllata anche la pagina libro.php
+E' possibile ottimizzarla, dato che c'è molto codice ripetitivo. Infatti l'if potrebbe riguardare soltanto l'header, 
+e lasciare invariato il contenuto. In sostanza l'if prende solo il blocco header, e lascia invariato il blocco 
+contenuto che è sempre uguale. La fregautra è la presenza del div "side" che è presente soltanto nel caso si faccia 
+riferimento al libro visualizzato dall'utente.
+Inoltre, sono state realizzate tutte le funzioni Java richiamate con Soap sulla pagina libro.php
+MANCANO DA CONTROLLARE LE PAGINE:
+ -profiloLibreria.php;
+ -profiloUser.php;
+ -login.php;
+Inoltre, c'è da realizzare le pagine citate nella parte finale del COMMENTO DIECI(sono quattro).
+Vogliamo fare una pagina pubblica per ogni utente? Direi di no.
+Vogliamo fare una pagina pubblica per ogni libreria? Si potrebbe, magari stampando tutti i libri che essa vende.
+Vogliamo fare una pagina per ogni autore? Stampadoci tutti i libri presenti nel catalogo di quell'autore.
+__|>
+
+###                  ###
+# TREDICESIMO COMMENTO #
+###                  ###
+_Per la modifica del libro, secondo me la soluzione migliore è: al click sul link modifica, mandare l'utente ad una 
+pagina "modificalibro".La pagina presenta un form già precompilato con tutti i campi del libro memorizzati nel database. 
+Scriviamo all'utente di modificare solamente quelli che vuole e lasciare invariati gli altri; in questo modo basta fare 
+una query con tutti i campi e buonanotte. Ci risparmieremmo lo switch su nomecampo e tutte le pippe conseguenti 
+(impossibilità di modificare più di un parametro alla volta). Se così è ok provvedo io a modificare java e php, dimmi te. 
+Lo stesso metodo lo potremmo usare per l'editing del profilo dell'utente.
+Modifiche e domande:
+1-cancellaLibro.php uppata: la funzione java è deleteLibro o rimuoviLibro?
+2-cancellaRecensione.php uppata
+3-modificaRecensione.php uppata
+Proposte:
+1-relativamente al quinto commento, non è meglio fare puntare a "www.miosito.it/books/isbnlibro.html"?
+2-Per la modifica/cancellazione delle recensioni, è necessario l'id? Secondo me sarebbe meglio mettere come 
+primary key la coppia <isbn,nickname>, tanto all'interno di commenti è unica (un utente può fare una sola recensione 
+per un libro); l'id poi non saprei come ottenerlo. Il php l'ho scritto in questo modo, semmai lo modifico, altrimenti 
+se va bene così anche per te modifico il java di conseguenza rimuovendo il parametro inutile. Ho scritto considerando 
+questi due soli parametri anche "modificaRecensione".
+__|>
+
+<:__  
+###                      ###
+# QUATTORDICESIMO COMMENTO #
+###                      ###
+_Controllate le pagine:
+ -login.php;
+ -profiloLibreria.php
+ -profiloUser.php
+Bisogna fare attenzione alle date presenti in php, java e nel database.
+Inoltre, tutte le funzioni Java presenti in queste tre pagine (richiamate tramite soap) sono state realizzate.
+Apportato diverse modifiche alla funzioni Java.
+Ho eliminato da profiloUser.php la possibilità di cambiare il nickname.
+Ho eleiminato da profiloLibreria.php la possibilità di cambiare la partita iva.
+Ho cambiato tutte le funzioni di cui avevamo parlato. Ora utilizzano tutte l'isbn.
+Ho fatte piccolissime correzioni alle 4 pagine che tu hai scritto (modifica/cancella recensioni/libro). Le pubblico separate 
+all'interno del file saed.zip, dove stanno tutti gli altri file php.
+Bisogna fare attenzione all'utilizzo degli array che prendono il risultato della chiamta Soap; infatti non possiamo utilizzare 
+come fossero array associativi($result['titolo']), perché in java non esistono array associativi, quindi bisogna utilizzare 
+gli indici interi ($result[0]). Le ho corrette su questi 4 file, ma bisogna controllare anche su tutti gli altri file.
+Manca da realizzare la pagina della libreria e la pagina dell'autore.
+C'è da fare qualcosa di più gradevole per gli errori.
+__|>
+
+<:__  
+###                      ###
+# QUATTORDICESIMO COMMENTO #
+###                      ###
+_Ralizzata la pagina autoreLibro.php che mostra tutti i libri che contenuti in libri_table ( catalogo) di quell'autore.
+Bisogna quindi inserire la RewriteRules che da www.miosito.it/nomeautore punta a autoreLibro.php.
+Inoltre, ho modifica tutte le funzione di ricerca in Java, dato che restituivano sempre anche l'id, cosa che a noi non serve mai.
+Per fare questo ho aggiunto un altro metodo costruttore della classe Libro.
+Mi ero scordato di una cosa: non c'è ancora la possibilità di aggiungere le recensioni e di votare il libro.
+Sia votare che recensire è consentito soltanto agli utenti, non alle librerie e non a chi non è loggato.
+C'è da controllare un po' tutti i cicli foreach, perché potrebbero non essere corretti.
+Inoltre, avatar e copertina del libro non sono stati implementati del tutto.
+Ricontrollate pagine:
+ -cerca.php;
+ -ricercaAvanzata.php;
+ -index.php;
+ -iscrizioneLibreria.php;
+ -iscrizioneUser.php;
+ -libriLibreria.php;
+ -profiloUser.php;
+ -profiloLibreria.php;
+ -login.php;
+ -recensioniutente.php;
+ -libro.php;
+Aggiunte:
+ -aggiungiRecensione.php;
+ -autoreLibro.php;
+ -profiloPubblicoLibreria.php;
+Ho aggiunto la tabella voti_libri, per un controllo sul voto.
+Ho appena aggiunto, infatti, la possibilità di votare un libro, però in questo modo l'utente poteva votare quante volte voleva.
+Adesso, invece, c'è questa tabella composta da (ISBN,nickname,voto), dove si tiene traccia dei voti dati dall'utente. La chiave 
+primaria sarà composta dalla coppia (isbn,nickname).
+L'utente può votare dalla pagina libro.php
+Per le recensioni forse dobbiamo creare una pagina apposita.
+Realizzata anche la pagina per inserire le recensioni. La pagina si chiama aggiungiRecensione.php
+Aggiunta anche la possibilità di vedere il voto lasciato dall'utente a quel libro (sempre su libro.php).
+C'E' DA SISTEMARE LE QUATTRO PAGINE PHP FATTE DA $GIULIO, PERCHE' NON HANNO GRAFICA, QUINDI DEVONO ESSERE SISTEMATE CON IL SOLITO 
+LAYOUT. Sono da inserire nei soliti tag.
+Realizzata anche la pagina profiloPubblicoLibreria.php, dove sarà possibile visualizzare da parte tutti (loggati e non loggati) i libri 
+messi in vendita da una particolare libreria.
+Ho realizzato anche la funzione in Java che si occupa di printare le info per questa pagina. Non è molto efficiente, ma non sapevo 
+fare di meglio. Bisogna aggiungere a tutte le pagine il link a questa pagina. Utilizza il solito sistema delle RewriteRules, 
+quindi occorre scriverele pure per questa. Il link sarà www.miosito.it/nomelibreria e punterà a profiloPubblicoLibreria.php.
+__|>
