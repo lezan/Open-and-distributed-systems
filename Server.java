@@ -445,8 +445,7 @@ public class Server {
 			prstmt = con.prepareStatement(query);
 			prstmt.setString(1, campi[9]);
 			rs=prstmt.executeQuery();
-			if(rs.next()&&!rs.getString("email").equals(campi[10]))
-			{
+			if(rs.next()&&!rs.getString("email").equals(campi[10])) {
 				prstmt.close();
 				rs.close();
 				return 3;
@@ -456,8 +455,7 @@ public class Server {
 			prstmt = con.prepareStatement(query);
 			prstmt.setString(1, campi[3]);
 			rs=prstmt.executeQuery();
-			if(rs.next()&&!rs.getString("email").equals(campi[10]))
-			{
+			if(rs.next()&&!rs.getString("email").equals(campi[10]))	{
 				prstmt.close();
 				rs.close();
 				return 4;
@@ -468,13 +466,12 @@ public class Server {
 				prstmt = con.prepareStatement(query);
 				prstmt.setString(1, campi[2]);
 				rs=prstmt.executeQuery();
-				if(rs.next())/*Email già esistente*/
-				{
+				if(rs.next()) { /*Email già esistente*/
 					prstmt.close();
 					rs.close();
 					return 5;
 				}
-				else{/*Procedo con l'aggiornamento e segnalo che è cambiata la mail*/
+				else {/*Procedo con l'aggiornamento e segnalo che è cambiata la mail*/
 					query="UPDATE vendors SET email=?,nome=?,indirizzo=?,citta=?,cap=?,telefono=?,fax=?,partita_iva=? WHERE email=?;";
 					prstmt = con.prepareStatement(query);
 					prstmt.setString(1, campi[2]);
@@ -506,13 +503,13 @@ public class Server {
 			prstmt.setString(9, campi[10]);
 			prstmt.executeUpdate();
 			prstmt.close();
-			rs.close();
-			return 0;
+			rs.close();			
 		}
 		catch(SQLException e){
 			e.printStackTrace();
 			return -1;
 		}
+		return 0;
 	}
 
 	/*
@@ -1228,16 +1225,16 @@ public class Server {
 	}
 
 	public String[] leggiLibro(String isbn) {
-		String[] risultato = new String[4];
+		String[] risultato = new String[5];
 		if (!connectDatabase()) {
 			return risultato;
 		}
 		try {
-			String query = "SELECT titolo,autore,anno,prezzo,lingua  FROM libri_table WHERE ISBN=?;";
+			String query = "SELECT titolo,autore,anno,prezzo,lingua FROM libri_table WHERE ISBN=?;";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, isbn);
 			ResultSet rs = prstmt.executeQuery();
-			if (rs.next()==false) {
+			if (!rs.next()) {
 				System.out.println("Il libro cercato non è presente.\n");
 				return risultato;
 			} else {
@@ -1253,13 +1250,11 @@ public class Server {
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 			return risultato;
 		}
 		return risultato;
-
 	}
 
 	public String[][] leggiLibroVenditore(String isbn) {
@@ -1524,8 +1519,7 @@ public class Server {
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 			return isbn;
 		}
@@ -1566,15 +1560,16 @@ public class Server {
 			return 2;
 		}
 		try {
-			String query = "SELECT nome_libreria FROM vendors WHERE email=?;";
+			String query = "SELECT nome FROM vendors WHERE email=?;";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, email);
+			prstmt.toString();
 			ResultSet rs = prstmt.executeQuery();
-			if (rs.next()==false) {
+			if (!rs.next()) {
 				System.out.println("Il libro cercato non è presente.\n");			
 				return 3;
 			} else {
-				nomeLibreria = rs.getString("nome_libreria");
+				nomeLibreria = rs.getString("nome");
 			}
 			prstmt.close();
 			rs.close();
@@ -1588,12 +1583,13 @@ public class Server {
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, ISBN);
 			prstmt.setString(2, nomeLibreria);
+			prstmt.toString();
 			ResultSet rs = prstmt.executeQuery();
-			if (rs.next()==false) {
+			if (!rs.next()) {
 				System.out.println("Il libro cercato non è presente.\n");
 				return 3;
 			} else {
-				query = "DELETE t1 FROM libri_table WHERE t1.ISBN=? AND t1.nome_libreria=?;";
+				query = "DELETE FROM libri_table WHERE ISBN=? AND nome_libreria=?;";
 				prstmt = con.prepareStatement(query);
 				prstmt.setString(1, ISBN);
 				prstmt.setString(2, nomeLibreria);
@@ -1608,8 +1604,34 @@ public class Server {
 			e.printStackTrace();
 			return 4;
 		}
-		return 1;
+		return 0;
 	}
+	
+	public int editLibro(String[] campi) {
+		if (!connectDatabase()) {
+			return -1;
+		}
+		try{
+			String query="UPDATE libri_table SET ISBN=?,titolo=?,autore=?,anno=?,prezzo=?,lingua=? WHERE ISBN=?;";
+			PreparedStatement prstmt;
+			prstmt = con.prepareStatement(query);
+			prstmt.setString(1, campi[0]);
+			prstmt.setString(2, campi[1]);
+			prstmt.setString(3, campi[2]);
+			prstmt.setString(4, campi[3]);
+			prstmt.setString(5, campi[4]);
+			prstmt.setString(6, campi[5]);
+			prstmt.setString(7, campi[0]);
+			prstmt.executeUpdate();
+			prstmt.close();
+		}
+		catch(SQLException e){
+			e.printStackTrace();
+			return -1;
+		}
+		return 0;
+	}
+
 
 	public int votaLibro(String ISBN, int voto, String nickname) {
 		if (!connectDatabase()) {
@@ -1761,7 +1783,7 @@ public class Server {
 			int i=0;
 			while (rs.next()) {
 				//for (int i = 0; i <= numero; i++) {
-				if(i<numero) {
+				if(i<4) {
 					for (int j = 0; j < 3; j++) {
 						if (j == 0) {
 							risultato[i][j] = rs.getString("titolo");
@@ -1772,6 +1794,9 @@ public class Server {
 						}
 					}
 					i++;
+				}
+				else if(i==4) {
+					break;
 				}
 			}
 			prstmt.close();
@@ -1856,7 +1881,7 @@ public class Server {
 		}
 		ResultSet rs;
 		try {
-			String query = "SELECT titolo,autore,data_inserimento FROM libri_table ORDER BY data_inserimento DESC;";
+			String query = "SELECT titolo,autore,data_pubblicazione FROM libri_table ORDER BY data_pubblicazione DESC;";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			rs = prstmt.executeQuery();
 			if (rs.next()==false) {
@@ -1867,26 +1892,30 @@ public class Server {
 			rs.beforeFirst();
 			while (rs.next()) {
 				//for (int i = 0; i < numero; i++) {
-				if (i<numero) {
+				if (i<4) {
 					for (int j = 0; j < 3; j++) {
 						if (j == 0) {
 							risultato[i][j] = rs.getString("titolo");
 						} else if (j == 1) {
 							risultato[i][j] = rs.getString("autore");
 						} else if (j == 2) {
-							risultato[i][j] = (rs.getTimestamp("data_inserimento")).toString();
+							risultato[i][j] = (rs.getTimestamp("data_pubblicazione")).toString();
 						}
 					}
 					i++;
+				}
+				else if(i==4) {
+					break;
 				}
 			}
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			return risultato;
 		}
-		for(int i=0;i<numero;i++) {
+		for(int i=0;i<4;i++) {
 			for(int j=0;j<3;j++) {
 				System.out.println("["+i+","+j+"]"+risultato[i][j]);
 			}
@@ -1937,7 +1966,7 @@ public class Server {
 		}
 		ResultSet rs;
 		try {
-			String query="SELECT titolo, autore, nickname FROM libri_table AS l JOIN commenti AS c ON c.ISBN = l.ISBN";
+			String query="SELECT titolo, autore, nickname FROM libri_table AS l JOIN commenti AS c ON c.ISBN = l.ISBN ORDER BY data";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			rs = prstmt.executeQuery();
 			if (rs.next() == false) {
@@ -1947,7 +1976,7 @@ public class Server {
 			rs.beforeFirst();
 			int i=0;
 			while(rs.next()) {
-				if(i<numero) {
+				if(i<4) {
 					for (int j = 0; j < 3; j++) {
 						if(j == 0) {
 							risultato[i][j] = rs.getString("nickname");
@@ -1959,6 +1988,9 @@ public class Server {
 						}
 					}
 					i++;
+				}
+				else if(i==4) {
+					break;
 				}
 			}
 			prstmt.close();

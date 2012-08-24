@@ -7,12 +7,12 @@ iscrizioneUser.php->L
 libriLibreria.php->L
 libro.php->L
 login.php->L
-modificaLibro.php ->G
+modificaLibro.php X
 modificaRecensione.php->G
 profiloLibreria.php ->G
 profiloPubblicoLibreria.php->L
 profiloUser.php->G
 recensioniUtente.php->G
 ricercaAvanzata.php->L
-rimuoviLibro.php ->G
+rimuoviLibro.php X
 rimuoviRecensione.php->G
