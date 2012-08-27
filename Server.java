@@ -1566,7 +1566,7 @@ public class Server {
 			prstmt.toString();
 			ResultSet rs = prstmt.executeQuery();
 			if (!rs.next()) {
-				System.out.println("Il libro cercato non è presente.\n");			
+				System.out.println("La libreria cercata non esiste.\n");			
 				return 3;
 			} else {
 				nomeLibreria = rs.getString("nome");
@@ -1579,7 +1579,7 @@ public class Server {
 			return 4;
 		}
 		try {
-			String query = "SELECT ISBN FROM libri_table WHERE ISBN=? AND nome_libreria=?;";
+			String query = "SELECT ISBN FROM libro_venditore WHERE ISBN=? AND nome=?;";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, ISBN);
 			prstmt.setString(2, nomeLibreria);
@@ -1589,7 +1589,7 @@ public class Server {
 				System.out.println("Il libro cercato non è presente.\n");
 				return 3;
 			} else {
-				query = "DELETE FROM libri_table WHERE ISBN=? AND nome_libreria=?;";
+				query = "DELETE FROM libri_venditore WHERE ISBN=? AND nome=?;";
 				prstmt = con.prepareStatement(query);
 				prstmt.setString(1, ISBN);
 				prstmt.setString(2, nomeLibreria);
@@ -1611,17 +1611,19 @@ public class Server {
 		if (!connectDatabase()) {
 			return -1;
 		}
+		String nome=leggiNomeLibreria(campi[0]);
 		try{
-			String query="UPDATE libri_table SET ISBN=?,titolo=?,autore=?,anno=?,prezzo=?,lingua=? WHERE ISBN=?;";
+			String query="UPDATE libri_table SET titolo=?,autore=?,casa_editrice,anno=?,lingua=?,prezzo=?, WHERE ISBN=?;";
 			PreparedStatement prstmt;
 			prstmt = con.prepareStatement(query);
-			prstmt.setString(1, campi[0]);
-			prstmt.setString(2, campi[1]);
-			prstmt.setString(3, campi[2]);
-			prstmt.setString(4, campi[3]);
-			prstmt.setString(5, campi[4]);
-			prstmt.setString(6, campi[5]);
-			prstmt.setString(7, campi[0]);
+			prstmt.setString(1, campi[1]);
+			prstmt.setString(2, campi[2]);
+			prstmt.setString(3, campi[3]);
+			prstmt.setString(4, campi[4]);
+			prstmt.setString(5, campi[5]);
+			prstmt.setString(6, campi[6]);
+			prstmt.setString(7, campi[7]);
+			prstmt.setString(8, nome);
 			prstmt.executeUpdate();
 			prstmt.close();
 		}
@@ -1632,6 +1634,27 @@ public class Server {
 		return 0;
 	}
 
+	public int editLibroVenditore(String[] campi) {
+		if (!connectDatabase()) {
+			return -1;
+		}
+		String nome=leggiNomeLibreria(campi[0]);
+		try{
+			String query="UPDATE libri_venditore SET sconto=?,copie=? WHERE ISBN=? AND nome=?;";
+			PreparedStatement prstmt;
+			prstmt = con.prepareStatement(query);
+			prstmt.setString(1, campi[1]);
+			prstmt.setString(2, campi[2]);
+			prstmt.setString(3, campi[3]);
+			prstmt.setString(4, nome);
+			prstmt.executeUpdate();
+			prstmt.close();
+		}catch(SQLException e){
+			e.printStackTrace();
+			return -1;
+		}
+		return 0;
+	}
 
 	public int votaLibro(String ISBN, int voto, String nickname) {
 		if (!connectDatabase()) {
