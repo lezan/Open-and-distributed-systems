@@ -603,28 +603,30 @@ public class Server {
 	 * librerie. Dobbiamo aggiungere il campo dataInserimento alla tabella
 	 * libri_table.
 	 */
-	public boolean addLibro(String titolo, String autore, String casaEditrice,
-			String ISBN, String prezzo, String lingua, String nomeLibreria,
-			String nCopie, String sconto, String dataPubblicazione) {
+	public int addLibro(String titolo, String isbn, String autore, String editore, 
+			String anno, String lingua, String prezzo, String copie, String sconto, 
+			String email) {
 		if (!connectDatabase()) {
-			return false;
+			return -1;
 		}
 		try {
 			String query = "SELECT ISBN FROM libri_table WHERE ISBN=?;";
 			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, ISBN);
+			prstmt.setString(1, isbn);
 			ResultSet rs = prstmt.executeQuery();
+			String nome=leggiNomeLibreria(email);
 			if (rs.next()== false) {
 				System.out.println("Il libro non è presente nel catalogo.\nIl libro verrà aggiunto.\n");
-				query = "INSERT INTO libri_table (titolo,autore,casa_editrice,ISBN,prezzo,lingua,nome_ibreria,data_pubblicazione) VALUES (?,?,?,?,?,?,?,?);";
+				query = "INSERT INTO libri_table (titolo,autore,casa_editrice,ISBN,prezzo,lingua,nome_libreria,anno) VALUES (?,?,?,?,?,?,?,?);";
 				prstmt = con.prepareStatement(query);
 				prstmt.setString(1, titolo);
 				prstmt.setString(2, autore);
-				prstmt.setString(3, casaEditrice);
-				prstmt.setString(4, ISBN);
+				prstmt.setString(3, editore);
+				prstmt.setString(4, isbn);
 				prstmt.setString(5, prezzo);
 				prstmt.setString(6, lingua);
-				prstmt.setString(7, nomeLibreria);
+				prstmt.setString(7, nome);
+				prstmt.setString(8, anno);
 				prstmt.executeUpdate();
 				System.out.println("Aggiunto.\n");
 				/*
@@ -634,255 +636,46 @@ public class Server {
 				System.out.println("Inserisco il libro in libro_venditore.\n");
 				query = "INSERT INTO libro_venditore(ISBN,nome,sconto,copie) VALUES (?,?,?,?);";
 				prstmt = con.prepareStatement(query);
-				prstmt.setString(1, ISBN);
-				prstmt.setString(2, nomeLibreria);
+				prstmt.setString(1, isbn);
+				prstmt.setString(2, nome);
 				prstmt.setString(3, sconto);
-				prstmt.setString(4, nCopie);
+				prstmt.setString(4, copie);
 				prstmt.executeUpdate();
 				System.out.println("Inserito.\n");
+				rs.close();
+				prstmt.close();
+				return 1;
 			}
 			/*
 			 * Se non era null, significa che il libro esisteva già nel catalogo
 			 * e quindi devo inserire solo in libro_venditore
 			 */
-			query = "SELECT ISBN,nome FROM libro_venditore WHERE ISBN=? AND nome=?;";
-			prstmt = con.prepareStatement(query);
-			prstmt.setString(1, ISBN);
-			prstmt.setString(2, nomeLibreria);
-			rs = prstmt.executeQuery();
-			if (rs.next()==false) { // Non era presente quel libro venduto da quella
-								// libreria in libro_venditore
-				query = "INSERT INTO libro_venditore(ISBN,nome,sconto,copie) VALUES(?,?,?,?);";
-				prstmt = con.prepareStatement(query);
-				prstmt.setString(1, ISBN);
-				prstmt.setString(2, nomeLibreria);
-				prstmt.setString(3, sconto);
-				prstmt.setString(4, nCopie);
-				prstmt.executeUpdate();
-			} else { // E' presente quel libro di quella libreria in
-						// libro_venditore
-				query = "UPDATE libro_venditore SET copie=copie+? WHERE ISBN=? AND nome=?;";
-				prstmt = con.prepareStatement(query);
-				prstmt.setString(1, nCopie);
-				prstmt.setString(2, ISBN);
-				prstmt.setString(3, nomeLibreria);
-				prstmt.executeUpdate();
-			}
-			rs.close();
-			prstmt.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-
-	/* La funzione rimuove un libro dalla tabella libro_venditore */
-	public int rimuoviLibro(String email, String isbn) {
-		if (!connectDatabase()) {
-			return 2;
-		}
-		try {
-			String query = "SELECT ISBN FROM libro_venditore WHERE ISBN=? AND email=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, isbn);
-			prstmt.setString(2, email);
-			ResultSet rs = prstmt.executeQuery();
-			if (rs.next()==false) {
-				System.out.println("Il libro cercato non è presente.\n");
-				return 3;
-			} else {
-				query = "DELETE t1 FROM libro_venditore WHERE t1.ISBN=? AND t1.email=?;";
+			else {
+				query = "SELECT ISBN,nome FROM libro_venditore WHERE ISBN=? AND nome=?;";
 				prstmt = con.prepareStatement(query);
 				prstmt.setString(1, isbn);
-				prstmt.setString(2, email);
-				prstmt.executeUpdate();
-				System.out.println("Il libro con ISBN = " + isbn
-						+ " è stato eliminato dalla lista.\n");
-			}
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-			return 4;
-		}
-		return 1;
-	}
-
-	/*
-	 * Potrebbe essere la funzione che viene richiamata se si vuole cambiare
-	 * qualcosa nei libro aggiunto al catalogo. Metti che ha sbagliato qualcosa,
-	 * lo corregge con questa funzione. Se invece dovesse cancellare il libro
-	 * aggiunto, allora facciamo un'altra funzione che fa cancellare e non
-	 * aggiornare. Purtroppo ha lo stesso problema della funzione per modificare
-	 * il profilo dell'utente.
-	 */
-
-	public int modificaCatalogo(String[] campi) {
-		if (!connectDatabase()) {
-			return 2;
-		}
-		//String[] risultato = new String[campi.length];
-		boolean primo = true;
-		String query = "";
-		try {
-			for (int i = 0; i < campi.length; i++) {
-				if (i == 0) {
-					if (!(campi[i].equals(""))) {
-						// nome = true;
-						primo = false;
-						query = "UPDATE libri_table SET ISBN=?";
-					}
-				} else if (i == 1) {
-					if (!(campi[i].equals(""))) {
-						// indirizzoLibreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE libri_table SET titolo=?";
-						} else {
-							query = query + ",titolo=?";
-						}
-					}
-				} else if (i == 2) {
-					if (!(campi[i].equals(""))) {
-						// cittaLibreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE libri_table SET autore=?";
-						} else {
-							query = query + ",autore=?";
-						}
-					}
-				} else if (i == 3) {
-					if (!(campi[i].equals(""))) {
-						// capLibreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE libri_table SET anno=?";
-						} else {
-							query = query + ",cap=?";
-						}
-					}
-				} else if (i == 4) {
-					if (!(campi[i].equals(""))) {
-						// telefonoLibreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE libri_table SET prezzo=?";
-						} else {
-							query = query + ",prezzo=?";
-						}
-					}
-				} else if (i == 5) {
-					if (!(campi[i].equals(""))) {
-						// telefono2Libreria = true;
-						if (primo) {
-							primo = false;
-							query = "UPDATE libri_table SET lingua=?";
-						} else {
-							query = query + ",lingua=?";
-						}
-					}
+				prstmt.setString(2, nome);
+				rs = prstmt.executeQuery();
+				if (rs.next()==false) { // Non era presente quel libro venduto da quella
+									// libreria in libro_venditore
+					query = "INSERT INTO libro_venditore(ISBN,nome,sconto,copie) VALUES(?,?,?,?);";
+					prstmt = con.prepareStatement(query);
+					prstmt.setString(1, isbn);
+					prstmt.setString(2, nome);
+					prstmt.setString(3, sconto);
+					prstmt.setString(4, copie);
+					prstmt.executeUpdate();
 				}
-			}
-			query = query + " WHERE ISBN=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			for (int i = 0; i <= campi.length; i++) {
-				prstmt.setString(i, campi[i]);
+				rs.close();
+				prstmt.close();
 			}
 		} catch (SQLException e) {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
-			return 3;
+			return -2;
 		}
-		return 1;
+		return 2;
 	}
-
-	/*
-	 * public boolean modificaCatalogo(String nomeCampo,String campo,String
-	 * nomeLibreria,String ISBN) { if(!connectDatabase()) { return false; }
-	 * PreparedStatement prstmt = null; String query=""; try {
-	 * if(nomeCampo.equals("nome_libreria")) { if (nomeCampo.equals("ISBN")) {
-	 * query = "UPDATE libri_table SET ?=? WHERE nome_libreria=? AND ISBN=?;";
-	 * prstmt = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); } else { query =
-	 * "SELECT ISBN FROM libri_table WHERE ISBN=?;"; prstmt =
-	 * con.prepareStatement(query); prstmt.setString(1, campo); ResultSet rs =
-	 * prstmt.executeQuery(); if (rs == null) { query =
-	 * "UPDATE libri_table SET ISBN=? WHERE nome_libreria=? AND ISBN=?;"; prstmt
-	 * = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); } else { System.out.println(
-	 * "L'ISBN che si sta tentando di inserire è già presente all'interno del catalogo.\n"
-	 * ); System.out.println("Il libro contenente l'ISBN=" + ISBN +
-	 * "verrà cancellato, perché sembrerebbe errato.\n");
-	 * if(deleteLibro(nomeLibreria, ISBN)) {
-	 * System.out.println("Libro cancellato correttamente.\n"); } else {
-	 * System.out
-	 * .println("Un errore si è presentato durante la cancellazione del libro" +
-	 * " con ISBN = " + ISBN + ".\nContattare l'amministratore.\n"); } return
-	 * false; } rs.close(); } } prstmt.close();
-	 */
-	/*
-	 * switch(nomeCampo) { case "titolo": query =
-	 * "UPDATE libri_table SET titolo=? WHERE nome_libreria=? AND ISBN=?;";
-	 * prstmt = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); break; case "autore": query =
-	 * "UPDATE libri_table SET autore=? WHERE nome_libreria=? AND ISBN=?;";
-	 * prstmt = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); break; case "anno": query =
-	 * "UPDATE libri_table SET anno=? WHERE nome_libreria=? AND ISBN=?;"; prstmt
-	 * = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); break; case "casa_editrice": query =
-	 * "UPDATE libri_table SET casa_editrice=? WHERE nome_libreria=? AND ISBN=?;"
-	 * ; prstmt = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); break; case "ISBN": query =
-	 * "SELECT ISBN FROM libri_table WHERE ISBN=?;"; prstmt =
-	 * con.prepareStatement(query); prstmt.setString(1, campo); ResultSet rs =
-	 * prstmt.executeQuery(); if (rs == null) { query =
-	 * "UPDATE libri_table SET ISBN=? WHERE nome_libreria=? AND ISBN=?;"; prstmt
-	 * = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); break; } else { System.out.println(
-	 * "L'ISBN che si sta tentando di inserire è già presente all'interno del catalogo.\n"
-	 * ); System.out.println("Il libro contenente l'ISBN=" + ISBN +
-	 * "verrà cancellato, perché sembrerebbe errato.\n");
-	 * if(deleteLibro(nomeLibreria, ISBN)) {
-	 * System.out.println("Libro cancellato correttamente.\n"); } else {
-	 * System.out
-	 * .println("Un errore si è presentato durante la cancellazione del libro" +
-	 * " con ISBN = " + ISBN + ".\nContattare l'amministratore.\n"); } return
-	 * false; } case "genere": query =
-	 * "UPDATE libri_table SET genere=? WHERE nome_libreria=? AND ISBN=?;";
-	 * prstmt = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); break; case "prezzo": query =
-	 * "UPDATE libri_table SET prezzo=? WHERE nome_libreria=? AND ISBN=?;";
-	 * prstmt = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); break; case "voto": query =
-	 * "UPDATE libri_table SET voto=? WHERE nome_libreria=? AND ISBN=?;"; prstmt
-	 * = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); break; case "lingua": query =
-	 * "UPDATE libri_table SET lingua=? WHERE nome_libreria=? AND ISBN=?;";
-	 * prstmt = con.prepareStatement(query); prstmt.setString(1, nomeCampo);
-	 * prstmt.setString(2, nomeLibreria); prstmt.setString(3, ISBN);
-	 * prstmt.executeUpdate(); break; default: break; }
-	 *//*
-		 * } catch (SQLException e) { System.out.println(
-		 * "Errore. Impossibile eseguire l'operazione richiesta.\n");
-		 * e.printStackTrace(); return false; } return true; }
-		 */
 
 	public String leggiTelefono2Utente(String nickname) {
 		String telefono = "";
@@ -1225,12 +1018,12 @@ public class Server {
 	}
 
 	public String[] leggiLibro(String isbn) {
-		String[] risultato = new String[5];
+		String[] risultato = new String[6];
 		if (!connectDatabase()) {
 			return risultato;
 		}
 		try {
-			String query = "SELECT titolo,autore,anno,prezzo,lingua FROM libri_table WHERE ISBN=?;";
+			String query = "SELECT titolo,autore,casa_editrice,anno,prezzo,lingua FROM libri_table WHERE ISBN=?;";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, isbn);
 			ResultSet rs = prstmt.executeQuery();
@@ -1242,9 +1035,11 @@ public class Server {
 				while (rs.next()) {
 					risultato[0] = rs.getString("titolo");
 					risultato[1] = rs.getString("autore");
-					risultato[2] = String.valueOf(rs.getInt("anno"));
-					risultato[3] = String.valueOf(rs.getDouble("prezzo"));
-					risultato[4] = rs.getString("lingua");
+					risultato[2] = rs.getString("casa_editrice");
+					risultato[3] = String.valueOf(rs.getInt("anno"));
+					risultato[4] = String.valueOf(rs.getDouble("prezzo"));
+					risultato[5] = rs.getString("lingua");
+					
 				}
 			}
 			prstmt.close();
@@ -1284,7 +1079,7 @@ public class Server {
 			prstmt.setString(1, isbn);
 			ResultSet rs = prstmt.executeQuery();
 			if (rs.next() == false) {
-				System.out.println("Il libro cercato non è presente.\n");
+				System.out.println("Il libro cercato non è presenteeeeeeee.\n");
 				return risultato;
 			} else {
 				rs.beforeFirst();
@@ -1607,23 +1402,51 @@ public class Server {
 		return 0;
 	}
 	
-	public int editLibro(String[] campi) {
+	public int checkOwnership(String email,String isbn) {
 		if (!connectDatabase()) {
 			return -1;
 		}
-		String nome=leggiNomeLibreria(campi[0]);
+		String nome=leggiNomeLibreria(email);
+		System.out.println(email);
+		System.out.println(nome);
+		System.out.println(isbn);
 		try{
-			String query="UPDATE libri_table SET titolo=?,autore=?,casa_editrice,anno=?,lingua=?,prezzo=?, WHERE ISBN=?;";
+			String query="SELECT * FROM libri_table WHERE ISBN=? AND nome_libreria=?";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1, isbn);
+			prstmt.setString(2, nome);
+			System.out.println(prstmt.toString());
+			ResultSet rs = prstmt.executeQuery();
+			if(rs.next()==false) {
+				return 2;
+			}
+			prstmt.close();
+			rs.close();
+		} catch(SQLException e){
+			System.out.println("Errore. Qualcosa non va in checkOwnership.\n");
+			e.printStackTrace();
+			return -2;
+		}
+		return 0;
+	}
+	
+	public int editLibroCatalogo(String campi[]) {
+		if (!connectDatabase()) {
+			return -1;
+		}
+		/*String nome=leggiNomeLibreria(campi[0]);*/
+		try{
+			String query="UPDATE libri_table SET titolo=?,autore=?,casa_editrice=?,anno=?,lingua=?,prezzo=? WHERE ISBN=?;";
 			PreparedStatement prstmt;
 			prstmt = con.prepareStatement(query);
-			prstmt.setString(1, campi[1]);
-			prstmt.setString(2, campi[2]);
-			prstmt.setString(3, campi[3]);
-			prstmt.setString(4, campi[4]);
-			prstmt.setString(5, campi[5]);
-			prstmt.setString(6, campi[6]);
-			prstmt.setString(7, campi[7]);
-			prstmt.setString(8, nome);
+			prstmt.setString(1, campi[2]);
+			prstmt.setString(2, campi[3]);
+			prstmt.setString(3, campi[4]);
+			prstmt.setString(4, campi[5]);
+			prstmt.setString(5, campi[6]);
+			prstmt.setDouble(6,Double.parseDouble(campi[7]));
+			prstmt.setString(7, campi[1]);
+			/*prstmt.setString(8, nome);*/
 			prstmt.executeUpdate();
 			prstmt.close();
 		}
@@ -1640,11 +1463,11 @@ public class Server {
 		}
 		String nome=leggiNomeLibreria(campi[0]);
 		try{
-			String query="UPDATE libri_venditore SET sconto=?,copie=? WHERE ISBN=? AND nome=?;";
+			String query="UPDATE libro_venditore SET sconto=?,copie=? WHERE ISBN=? AND nome=?;";
 			PreparedStatement prstmt;
 			prstmt = con.prepareStatement(query);
-			prstmt.setString(1, campi[1]);
-			prstmt.setString(2, campi[2]);
+			prstmt.setDouble(1, Double.parseDouble(campi[1]));
+			prstmt.setInt(2, Integer.parseInt(campi[2]));
 			prstmt.setString(3, campi[3]);
 			prstmt.setString(4, nome);
 			prstmt.executeUpdate();
@@ -1655,7 +1478,7 @@ public class Server {
 		}
 		return 0;
 	}
-
+	
 	public int votaLibro(String ISBN, int voto, String nickname) {
 		if (!connectDatabase()) {
 			return -1;
@@ -1752,6 +1575,35 @@ public class Server {
 			e.printStackTrace();
 		}
 		return voto;
+	}
+	
+	public String[] leggiScontoCopie(String ISBN){
+		String[] risultato = new String[3];
+		if (!connectDatabase()) {
+			return risultato;
+		}
+		try {
+			String query = "SELECT titolo,sconto,copie FROM libro_venditore AS l JOIN (SELECT titolo,ISBN FROM libri_table WHERE ISBN=?) AS t on t.ISBN=l.ISBN;";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1, ISBN);
+			ResultSet rs = prstmt.executeQuery();
+			if (!rs.next()) {
+				System.out.println("Il libro cercato non è presente.\n");
+				return risultato;
+			} else {
+				risultato[0] = rs.getString("titolo");
+				risultato[1] = rs.getString("sconto");
+				risultato[2] = rs.getString("copie");
+				
+			}
+			prstmt.close();
+			rs.close();
+		} catch (SQLException e) {
+			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			e.printStackTrace();
+			return risultato;
+		}
+		return risultato;
 	}
 
 	public String leggiNomeLibreria(String email) {
