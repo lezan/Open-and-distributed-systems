@@ -1,6 +1,8 @@
 package Libreria;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -8,8 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import org.apache.axis.encoding.Base64;
 
+import javax.naming.spi.DirStateFactory.Result;
 import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -3043,6 +3046,61 @@ public class Server {
 			prstmt.close();
 		} catch (SQLException e) {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			e.printStackTrace();
+			return risultato;
+		}
+		return risultato;
+	}
+
+	public int uploadAvatar(String percorso,String image,String username) {
+		if (!connectDatabase()) {
+			return -1;
+		}
+		try {
+			Base64 decoder=new Base64();
+			byte[] imgBytes=decoder.decode(image);
+			File of = new File(percorso);
+			FileOutputStream osf = new FileOutputStream(of);  
+			osf.write(imgBytes);  
+			osf.flush();
+			osf.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+			return -2;
+		}
+		try {
+			String query="UPDATE users SET location=? WHERE nickname=?";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1,percorso);
+			prstmt.setString(2,username);
+			prstmt.executeUpdate();
+			prstmt.close();
+		} catch(SQLException e1) {
+			e1.printStackTrace();
+			return -3;
+		}
+		return 0;
+	}
+	
+	public String cercaAvatar(String username) {
+		String risultato=null;
+		if (!connectDatabase()) {
+			return risultato;
+		}
+		System.out.println(username);
+		System.out.println("......................");
+		try {
+			String query="SELECT location FROM users WHERE nickname=?";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1,username);
+			ResultSet rs=prstmt.executeQuery();
+			if(rs.next()==false) {
+				return risultato;
+			}
+			else {
+				risultato=rs.getString("location");
+			}
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return risultato;
 		}
