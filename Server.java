@@ -393,7 +393,7 @@ public class Server {
 				return 3;
 			}
 			rs.beforeFirst();
-			query="UPDATE users SET email=?,nome=?,cognome=?,indirizzo=?,città=?,cap=?,telefono=?,telefono2=? WHERE nickname=?;";
+			query="UPDATE users SET email=?,nome=?,cognome=?,indirizzo=?,citta=?,cap=?,telefono=?,telefono2=? WHERE nickname=?;";
 			prstmt = con.prepareStatement(query);
 			prstmt.setString(1, campi[2]);
 			prstmt.setString(2, campi[3]);
@@ -912,7 +912,7 @@ public class Server {
 	}
 
 	public String[] leggiDataNascitaUtente(String nickname) {
-		String[] risultato = new String[2];
+		String[] risultato = new String[3];
 		String data = "";
 		if (!connectDatabase()) {
 			return risultato;
@@ -922,6 +922,9 @@ public class Server {
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, nickname);
 			ResultSet rs = prstmt.executeQuery();
+			if(rs.next()==false) {
+				return risultato;
+			}
 			data = rs.getString("data_nascita");
 			risultato[0] = data.substring(0, 4);
 			risultato[1] = data.substring(5, 7);
@@ -929,9 +932,9 @@ public class Server {
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
+			return risultato;
 		}
 		return risultato;
 	}
@@ -1192,7 +1195,8 @@ public class Server {
 	}
 	
 	public String[] leggiDatiUtente(String nickuser){
-		String[] result=new String[8];
+		String[] result=new String[11];
+		String data="";
 		if (!connectDatabase()) {
 			return result;
 		}
@@ -1207,14 +1211,19 @@ public class Server {
 			result[1] = rs.getString("nome");
 			result[2] = rs.getString("cognome");
 			result[3] = rs.getString("indirizzo");
-			result[4] = rs.getString("città");
+			result[4] = rs.getString("citta");
 			result[5] = rs.getString("cap");
 			result[6] = rs.getString("telefono");
 			result[7] = rs.getString("telefono2");
+			data=rs.getString("data_nascita");
+			result[8] = data.substring(0, 4);
+			result[9] = data.substring(5, 7);
+			result[10] = data.substring(8, 10);
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile leggere i dati.\n");
+			e.printStackTrace();
+			System.out.println("Errore. IIIIIIImpossibile leggere i dati.\n");
 		}
 		return result;
 	}
@@ -3056,10 +3065,12 @@ public class Server {
 		if (!connectDatabase()) {
 			return -1;
 		}
+		String address="/var/www/"+percorso;
 		try {
+			System.out.println(address);
 			Base64 decoder=new Base64();
 			byte[] imgBytes=decoder.decode(image);
-			File of = new File(percorso);
+			File of = new File(address);
 			FileOutputStream osf = new FileOutputStream(of);  
 			osf.write(imgBytes);  
 			osf.flush();
@@ -3087,8 +3098,6 @@ public class Server {
 		if (!connectDatabase()) {
 			return risultato;
 		}
-		System.out.println(username);
-		System.out.println("......................");
 		try {
 			String query="SELECT location FROM users WHERE nickname=?";
 			PreparedStatement prstmt = con.prepareStatement(query);
