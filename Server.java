@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.apache.axis.encoding.Base64;
 
 import javax.naming.spi.DirStateFactory.Result;
@@ -361,24 +363,27 @@ public class Server {
 		if (!connectDatabase()) {
 			return -1;
 		}
+		for(int i=0;i<14;i++) {
+			System.out.println(i+"=>"+campi[i]);
+		}
 		try{
 			String query;
 			PreparedStatement prstmt;
-			if(!campi[0].equals("")&&!campi[1].equals("")){
-				if(checkPasswordUsers(campi[10],campi[0]))	{
-					if(checkPassword(campi[1])){
-					query = "UPDATE users SET password=? WHERE nickname=?;";
-					prstmt = con.prepareStatement(query);
-					prstmt.setString(1, campi[1]);
-					prstmt.setString(2, campi[10]);
-					prstmt.executeUpdate();
+			if(!campi[0].equals("")&&!campi[1].equals("")) {
+				if(checkPasswordUsers(campi[10],campi[0])) {
+					if(checkPassword(campi[1])) {
+						query = "UPDATE users SET password=? WHERE nickname=?;";
+						prstmt = con.prepareStatement(query);
+						prstmt.setString(1, campi[1]);
+						prstmt.setString(2, campi[10]);
+						prstmt.executeUpdate();
 					}
-					else{
+					else {
 						System.out.println("password nuova errata");
 						return 1;
 					}
 				}
-				else{
+				else {
 					System.out.println("password vecchia errata");
 					return 2;
 				}
@@ -388,31 +393,32 @@ public class Server {
 			prstmt = con.prepareStatement(query);
 			prstmt.setString(1, campi[2]);
 			rs=prstmt.executeQuery();
-			if(rs.next()&&!rs.getString("nickname").equals(campi[10]))
-			{
+			if(rs.next()&&!rs.getString("nickname").equals(campi[10])) {
 				return 3;
 			}
 			rs.beforeFirst();
-			query="UPDATE users SET email=?,nome=?,cognome=?,indirizzo=?,citta=?,cap=?,telefono=?,telefono2=? WHERE nickname=?;";
+			Date data=new Date(0000-00-00);
+			query="UPDATE users SET email=?,nome=?,cognome=?,indirizzo=?,citta=?,cap=?,telefono=?,telefono2=?,data_nascita=? WHERE nickname=?;";
 			prstmt = con.prepareStatement(query);
 			prstmt.setString(1, campi[2]);
 			prstmt.setString(2, campi[3]);
 			prstmt.setString(3, campi[4]);
 			prstmt.setString(4, campi[5]);
 			prstmt.setString(5, campi[6]);
-			prstmt.setString(6, campi[7]);
+			prstmt.setInt(6, Integer.valueOf(campi[7]).intValue());
 			prstmt.setString(7, campi[8]);
-			prstmt.setString(8, campi[9]);
-			prstmt.setString(9, campi[10]);
+			prstmt.setString(8, campi[9]);			
+			prstmt.setDate(9, data.valueOf(campi[11]+"-"+campi[12]+"-"+campi[13]));
+			prstmt.setString(10, campi[10]);
 			prstmt.executeUpdate();
 			prstmt.close();
-			rs.close();
-			return 0;
+			rs.close();			
 		}
-		catch(SQLException e){
+		catch(SQLException e) {
 			e.printStackTrace();
 			return -1;
 		}
+		return 0;
 	}
 
 	public int editLibreria(String[] campi) {
