@@ -10,22 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import org.apache.axis.encoding.Base64;
-
-import javax.naming.spi.DirStateFactory.Result;
-import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /*import java.sql.Statement; */
 
@@ -686,349 +671,6 @@ public class Server {
 		return 2;
 	}
 
-	public String leggiTelefono2Utente(String nickname) {
-		String telefono = "";
-		if (!connectDatabase()) {
-			return telefono;
-		}
-		try {
-			String query = "SELECT telefono FROM users WHERE nickname=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nickname);
-			ResultSet rs = prstmt.executeQuery();
-			telefono = rs.getString("telefono");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return telefono;
-	}
-
-	public String leggiTelefonoUtente(String nickname) {
-		String telefono = "";
-		if (!connectDatabase()) {
-			return telefono;
-		}
-		try {
-			String query = "SELECT telefono FROM users WHERE nickname=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nickname);
-			ResultSet rs = prstmt.executeQuery();
-			telefono = rs.getString("telefono");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return telefono;
-	}
-
-	public String leggiTelefonoLibreria(String email) {
-		String telefono = "";
-		if (!connectDatabase()) {
-			return telefono;
-		}
-		try {
-			String query = "SELECT telefono FROM vendors WHERE email=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, email);
-			ResultSet rs = prstmt.executeQuery();
-			telefono = rs.getString("telefono");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return telefono;
-	}
-
-	public String leggiTelefono2Libreria(String email) {
-		String telefono = "";
-		if (!connectDatabase()) {
-			return telefono;
-		}
-		try {
-			String query = "SELECT telefono2 FROM vendors WHERE email=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, email);
-			ResultSet rs = prstmt.executeQuery();
-			telefono = rs.getString("telefono2");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return telefono;
-	}
-
-	public String leggiCapUtente(String nickname) {
-		String cap = "";
-		if (!connectDatabase()) {
-			return cap;
-		}
-		try {
-			String query = "SELECT cap FROM users WHERE nickname=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nickname);
-			ResultSet rs = prstmt.executeQuery();
-			cap = rs.getString("cap");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return cap;
-	}
-
-	public String leggiCapLibreria(String email) {
-		String cap = "";
-		if (!connectDatabase()) {
-			return cap;
-		}
-		try {
-			String query = "SELECT cap FROM vendors WHERE email=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, email);
-			ResultSet rs = prstmt.executeQuery();
-			cap = rs.getString("cap");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return cap;
-	}
-
-	public String leggiCittaUtente(String nickname) {
-		String citta = "";
-		if (!connectDatabase()) {
-			return citta;
-		}
-		try {
-			String query = "SELECT citta FROM users WHERE nickname=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nickname);
-			ResultSet rs = prstmt.executeQuery();
-			citta = rs.getString("citta");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return citta;
-	}
-
-	public String leggiCittaLibreria(String email) {
-		String citta = "";
-		if (!connectDatabase()) {
-			return citta;
-		}
-		try {
-			String query = "SELECT citta FROM vendors WHERE email=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, email);
-			ResultSet rs = prstmt.executeQuery();
-			citta = rs.getString("citta");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return citta;
-	}
-
-	public String leggiIndirizzoUtente(String nickname) {
-		String indirizzo = "";
-		if (!connectDatabase()) {
-			return indirizzo;
-		}
-		try {
-			String query = "SELECT indirizzo FROM users WHERE nickname=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nickname);
-			ResultSet rs = prstmt.executeQuery();
-			indirizzo = rs.getString("indirizzo");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return indirizzo;
-	}
-
-	public String leggiCognomeUtente(String nickname) {
-		String cognome = "";
-		if (!connectDatabase()) {
-			return cognome;
-		}
-		try {
-			String query = "SELECT cognome FROM users WHERE nickname=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nickname);
-			ResultSet rs = prstmt.executeQuery();
-			cognome = rs.getString("cognome");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return cognome;
-	}
-
-	public String leggiNomeUtente(String nickname) {
-		String nome = "";
-		if (!connectDatabase()) {
-			return nome;
-		}
-		try {
-			String query = "SELECT nome FROM users WHERE nickname=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nickname);
-			ResultSet rs = prstmt.executeQuery();
-			nome = rs.getString("nome");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return nome;
-	}
-
-	public String[] leggiDataNascitaUtente(String nickname) {
-		String[] risultato = new String[3];
-		String data = "";
-		if (!connectDatabase()) {
-			return risultato;
-		}
-		try {
-			String query = "SELECT data_nascita FROM users WHERE nickname=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nickname);
-			ResultSet rs = prstmt.executeQuery();
-			if(rs.next()==false) {
-				return risultato;
-			}
-			data = rs.getString("data_nascita");
-			risultato[0] = data.substring(0, 4);
-			risultato[1] = data.substring(5, 7);
-			risultato[2] = data.substring(8, 10);
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-			return risultato;
-		}
-		return risultato;
-	}
-
-	public String leggiEmailUtente(String nickname) {
-		String email = "";
-		if (!connectDatabase()) {
-			return email;
-		}
-		try {
-			String query = "SELECT email FROM users WHERE nickname=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nickname);
-			ResultSet rs = prstmt.executeQuery();
-			email = rs.getString("email");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return email;
-	}
-
-	public String leggiEmailLibreria(String partitaIva) {
-		String email = "";
-		if (!connectDatabase()) {
-			return email;
-		}
-		try {
-			String query = "SELECT email FROM vendors WHERE partita_iva=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, partitaIva);
-			ResultSet rs = prstmt.executeQuery();
-			email = rs.getString("email");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return email;
-	}
-
-	public String leggiPartitaIva(String email) {
-		String partitaIva = "";
-		if (!connectDatabase()) {
-			return partitaIva;
-		}
-		try {
-			String query = "SELECT partita_iva FROM users WHERE email=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, email);
-			ResultSet rs = prstmt.executeQuery();
-			email = rs.getString("partita_iva");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return partitaIva;
-	}
-
-	public String leggiIndirizzoLibreria(String email) {
-		String indirizzo = "";
-		if (!connectDatabase()) {
-			return indirizzo;
-		}
-		try {
-			String query = "SELECT indirizzo FROM vendors WHERE email=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, email);
-			ResultSet rs = prstmt.executeQuery();
-			email = rs.getString("indirizzo");
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return indirizzo;
-	}
-
 	public String[] leggiLibro(String isbn) {
 		String[] risultato = new String[6];
 		if (!connectDatabase()) {
@@ -1120,84 +762,6 @@ public class Server {
 			return risultato;
 		}
 		return risultato;
-	}
-
-	public String leggiPrezzo(String isbn) {
-		String prezzo = "";
-		if (!connectDatabase()) {
-			return prezzo;
-		}
-		try {
-			String query = "SELECT prezzo FROM libri_table WHERE ISBN=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, isbn);
-			ResultSet rs = prstmt.executeQuery();
-			if (rs.next()==false) {
-				System.out.println("Il libro cercato non è presente.\n");
-			} else {
-				prezzo = String.valueOf(rs.getDouble("prezzo"));
-			}
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-			return prezzo;
-		}
-		return prezzo;
-	}
-
-	public String leggiLingua(String isbn) {
-		String lingua = "";
-		if (!connectDatabase()) {
-			return lingua;
-		}
-		try {
-			String query = "SELECT lingua FROM libri_table WHERE ISBN=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, isbn);
-			ResultSet rs = prstmt.executeQuery();
-			if (rs.next()==false) {
-				System.out.println("Il libro cercato non è presente.\n");
-			} else {
-				lingua = rs.getString("lingua");
-			}
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-			return lingua;
-		}
-		return lingua;
-	}
-
-	public String leggiDataPubblicazione(String isbn) {
-		String data = "";
-		if (!connectDatabase()) {
-			return data;
-		}
-		try {
-			String query = "SELECT data_pubblicazione FROM libri_table WHERE ISBN=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, isbn);
-			ResultSet rs = prstmt.executeQuery();
-			if (rs.next()==false) {
-				System.out.println("Il libro cercato non è presente.\n");
-				return data;
-			} else {
-				data = rs.getString("data_pubblicazione");
-			}
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-			return data;
-		}
-		return data;
 	}
 	
 	public String[] leggiDatiUtente(String nickuser){
@@ -1364,6 +928,107 @@ public class Server {
 			return editore;
 		}
 		return editore;
+	}
+	
+	public String leggiDataPubblicazione(String isbn) {
+		String data = "";
+		if (!connectDatabase()) {
+			return data;
+		}
+		try {
+			String query = "SELECT data_pubblicazione FROM libri_table WHERE ISBN=?;";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1, isbn);
+			ResultSet rs = prstmt.executeQuery();
+			if (rs.next()==false) {
+				System.out.println("Il libro cercato non è presente.\n");
+				return data;
+			} else {
+				data = rs.getString("data_pubblicazione");
+			}
+			prstmt.close();
+			rs.close();
+		} catch (SQLException e) {
+			System.out
+					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			e.printStackTrace();
+			return data;
+		}
+		return data;
+	}
+	
+	public String leggiLingua(String isbn) {
+		String lingua = "";
+		if (!connectDatabase()) {
+			return lingua;
+		}
+		try {
+			String query = "SELECT lingua FROM libri_table WHERE ISBN=?;";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1, isbn);
+			ResultSet rs = prstmt.executeQuery();
+			if (rs.next()==false) {
+				System.out.println("Il libro cercato non è presente.\n");
+			} else {
+				lingua = rs.getString("lingua");
+			}
+			prstmt.close();
+			rs.close();
+		} catch (SQLException e) {
+			System.out
+					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			e.printStackTrace();
+			return lingua;
+		}
+		return lingua;
+	}
+	
+	public String leggiPrezzo(String isbn) {
+		String prezzo = "";
+		if (!connectDatabase()) {
+			return prezzo;
+		}
+		try {
+			String query = "SELECT prezzo FROM libri_table WHERE ISBN=?;";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1, isbn);
+			ResultSet rs = prstmt.executeQuery();
+			if (rs.next()==false) {
+				System.out.println("Il libro cercato non è presente.\n");
+			} else {
+				prezzo = String.valueOf(rs.getDouble("prezzo"));
+			}
+			prstmt.close();
+			rs.close();
+		} catch (SQLException e) {
+			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			e.printStackTrace();
+			return prezzo;
+		}
+		return prezzo;
+	}
+	
+	public double leggiVoto(String isbn) {
+		double voto = 0;
+		if (!connectDatabase()) {
+			return voto;
+		}
+		try {
+			String query = "SELECT voto FROM libri_table WHERE ISBN=?;";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1, isbn);
+			ResultSet rs = prstmt.executeQuery();
+			if (rs.next()==false) {
+				return voto;
+			}
+			voto = rs.getDouble("voto");
+			rs.close();
+			prstmt.close();
+		} catch (SQLException e) {
+			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			e.printStackTrace();
+		}
+		return voto;
 	}
 
 	// Rimuove i libri inseriti dal catalogo
@@ -1567,29 +1232,6 @@ public class Server {
 		} catch (SQLException e) {
 			System.out
 					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return voto;
-	}
-
-	public double leggiVoto(String isbn) {
-		double voto = 0;
-		if (!connectDatabase()) {
-			return voto;
-		}
-		try {
-			String query = "SELECT voto FROM libri_table WHERE ISBN=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, isbn);
-			ResultSet rs = prstmt.executeQuery();
-			if (rs.next()==false) {
-				return voto;
-			}
-			voto = rs.getDouble("voto");
-			rs.close();
-			prstmt.close();
-		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 		}
 		return voto;
@@ -2138,92 +1780,6 @@ public class Server {
 		} catch (SQLException e) {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-
-	/*
-	 * Questa funzione realizza la scrittura delle recensioni in un file xml
-	 * 'commenti_xml.xml'. Viene prelevata dalla tabella 'commenti' tutte le
-	 * informazioni e poi scritte nei file. Sarà poi php che andrà a leggere
-	 * questo file xml così da riportare su ogni libro la recensione realizzata
-	 * dalla utente. Metto il voto alla recensione?! *************--------->
-	 * CONTROLLARE SE FUNZIONA! <------***********
-	 */
-	public boolean scriviRecensione() {
-		if (!connectDatabase()) {
-			return false;
-		}
-		try {
-			String query = "SELECT * FROM commenti ORDER BY data ASC;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			ResultSet rs = prstmt.executeQuery();
-			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder documentBuilder;
-			documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			Document document = documentBuilder.newDocument();
-			Element rootElement = document.createElement("rootComment");
-			document.appendChild(rootElement);
-			while (rs.next()) {
-				String corpo = rs.getString("corpo_commento");
-				String nickname = rs.getString("nickname");
-				String ISBN = rs.getString("ISBN");
-				Timestamp data = rs.getTimestamp("data");
-				int id = rs.getInt("id");
-
-				Element comment = document.createElement("recensioni");
-				rootElement.appendChild(comment);
-
-				/*
-				 * Trovare un modo per far venire una struttura id questo tipo:
-				 * <rootComment> <recensioni> <ISBN> <------------- ISBN vero
-				 * del libro ************* <id> </id> <data> </data> <nickname>
-				 * </nickname> <corpo_commento> </corpo_commento> </ISBN>
-				 * </Recensioni> </rootComment>
-				 * 
-				 * Oppure va bene in questo modo?
-				 * 
-				 * <rootComment> <recensioni> <ISBN> </ISBN> <id> </id> <data>
-				 * </data> <nickname> </nickname> <corpo_commento>
-				 * </corpo_commento> </Recensioni> </rootComment>
-				 */
-				Element ISBNCommento = document.createElement("ISBN");
-				ISBNCommento.appendChild(document.createTextNode(ISBN));
-				rootElement.appendChild(ISBNCommento);
-
-				Element idCommento = document.createElement("id");
-				idCommento.appendChild(document.createTextNode(Integer.toString(id)));
-				rootElement.appendChild(idCommento);
-
-				Element dataCommento = document.createElement("data");
-				dataCommento.appendChild(document.createTextNode(data.toString()));
-				rootElement.appendChild(dataCommento);
-
-				Element nicknameCommento = document.createElement("nickname");
-				nicknameCommento.appendChild(document.createTextNode(nickname));
-				rootElement.appendChild(nicknameCommento);
-
-				Element corpoCommento = document.createElement("corpo_commento");
-				corpoCommento.appendChild(document.createTextNode(corpo));
-				rootElement.appendChild(corpoCommento);
-			}
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
-			DOMSource source = new DOMSource(document);
-			StreamResult result = new StreamResult(new File("commenti_xml.xml"));
-			transformer.transform(source, result);
-		} catch (ParserConfigurationException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-			return false;
-		} catch (TransformerException e2) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e2.printStackTrace();
-			return false;
-		} catch (SQLException e3) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e3.printStackTrace();
 			return false;
 		}
 		return true;
