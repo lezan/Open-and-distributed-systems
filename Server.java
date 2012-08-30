@@ -266,14 +266,14 @@ public class Server {
 		return true;
 	}
 
-	boolean checkPasswordLibrerie(String partitaIva, String passwd) {
+	boolean checkPasswordLibrerie(String email, String passwd) {
 		if (!connectDatabase()) {
 			return false;
 		}
 		try {
-			String query = "SELECT nome FROM vendors WHERE partita_iva=? AND password=?";
+			String query = "SELECT nome FROM vendors WHERE email=? AND password=?";
 			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, partitaIva);
+			prstmt.setString(1, email);
 			prstmt.setString(2, passwd);
 			ResultSet rs = prstmt.executeQuery();
 			if (rs.next()) {
@@ -1376,7 +1376,7 @@ public class Server {
 		return numero;
 	}
 	
-	public int contaLibriMod() {
+	int contaLibriMod() {
 		int numero=0;
 		if (!connectDatabase()) {
 			return -1;
@@ -1464,7 +1464,7 @@ public class Server {
 	 * ResultSet rs una volta che si lavora con il ResultSet rs2
 	 */
 	
-	public int contaRecensioni() {
+	int contaRecensioni() {
 		int numero = 0;
 		if (!connectDatabase()) {
 			return -1;
@@ -1833,7 +1833,7 @@ public class Server {
 	 * ); e.printStackTrace(); return risultato; } return risultato; }
 	 */
 
-	public int contaLibri(String query) {
+	int contaLibri(String query) {
 		int numero = 0;
 		if (!connectDatabase()) {
 			return numero;
