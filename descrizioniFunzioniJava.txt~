@@ -95,3 +95,118 @@
  	La funzione realizza l'aggiornamento dei dati relativi al profilo di utente.
  	Dettagli: come nel caso di editLibreria, un attenzione maggiore viene riservata alla modifica della password; il procedimento è il medesimo______________________
  	
+ - inserisciRecensione:
+ 	La funzione si occupa di inserire la recensione rilasciata dall'utente all'interno della tabella commenti.
+ 	Dettagli: la funzione riceve come parametri il nickname dell'utente che ha sottomesso il commento, l'ISBN del libro che ha ricevuto il commento e il corpo della recensione (o commento). Viene costruita la query prendendo come valori i parametri e la data corrente e viene fatto l'inserimento.
+ 	La funzione ritorna un valore booleano che sarà true nel caso in cui l'inserimento vada a buon fine, ovvero false negli altri casi.
+ 	
+ - iscrizioneLibrerie:
+ 	La funzione consente e realizza l'iscrizione di una libreria al sito web.
+ 	Dettagli: la funzione riceve come parametri i dati essenziali che una libreria deve necessariamente avere, e sono: nome, password, la conferma della password, l'email, l'indirizzo, la città, il cap e la partita iva.
+ 	Prima si procede al controllo dell'email: se rispetta i requisiti e se le due password coincidono. Poi si passa al controllo dell'unicità del nome, dell'email e della partita iva; se tutti i controlli vengono superati si procede all'inserimento nella tabella vendors dei nuovi dati ottenuti.
+ 	La funzione ritorna un valore intero che sarà 1 in caso di corretto inserimento, altrimenti assumerà un valore intero positivo a seconda dell'errore verificatosi.
+ 	
+ - iscrizioneUser:
+ 	La funzione realizza l'iscrizione di un utente al sito web.
+ 	Dettagli: la funzione riceve i dati necessari ad un utente per potersi iscrivere, e sono: nickname, password, la conferma della password e l'email.
+ 	Come nel caso di iscrizioneLibrerie, vengono fatti controlli sulla password (rispetto dei requisiti e coincidenza delle due password) e poi si passa al controllo dell'unicità di nickname ed email; se tutti i controlli vengono superati con successo viene fatto l'inserimento all'interno della tabella users dei nuovi dati recepiti.
+ 	La funzione ritorna un intero che avrà valore in caso di inserimento riuscito, altrimenti assumerà valori interi positivi a seconda dell'errore verificatosi.
+ 	
+ - leggiAutore, leggiDataPubblicazione, leggiEditore, leggiLingua, leggiPrezzo, leggiTitolo, leggiVoto:
+ 	Tutte queste funzione si occupano di leggere dati che sono riferiti ad un libro.
+ 	Dettagli: tutte le funzione ricevono come parametro l'ISBN del libro che sarà utilizzato nella query per selezionare l'attributo richiesto dalla funzione (autore, data pubblicazione, editore, lingua, prezzo, titolo, voto); viene controllato che una tupla sia stata selezionata e in caso positivo si procede all'estrazione del valore richiesto.
+ 	Le funzione returnano in tutti i casi una stringa che sarà il valore richiesto se tutto sarà andato a buon fine, mentre sarà una stringa vuota in caso di errore e di mancata selezione della tupla.
+ 	
+ - leggiDatiLibreria: 
+ 	La funzione si occupa di prelevare tutti i dati che fanno riferimento ad una particolare libreria.
+ 	Dettagli: la funzione riceve per parametro l'email della libreria di cui si vuol recuperare i dati; seleziona la tupla della libreria utilizzato il parametro email e restituisce un array di stringhe contenente i dati della libreria.
+ 	
+ - leggiDatiUtente:
+ 	La funzione si occupa di prelavare tutti i dati che fanno riferimento ad un particolare utente.
+ 	Dettagli: la funzione riceve come parametro il nickname dell'utente di cui si vuol recuperare i dati; seleziona la tupla utilizzando il paramentro nickname e restituisce un array di stringhe contenente i dati dell'utente.
+ 	
+ - leggiISBN:
+ 	La funzione preleva l'ISBN del libro richiesto.
+ 	Dettagli: la funzione riceve come parametro il titolo del libro ricercato e lo sfrutta nella query per selezionare la tupla corrispondente; preleva l'ISBN dalla tupla selezionata con la query e lo restituisce.
+ 	La funzione ritorna una stringa che conterrà l'ISBN in caso di successo, altrimenti una stringa vuota.
+ 	
+ - leggiLibro:
+ 	La funzione restituisce i valori del libro ricercato ( titolo, autore, casa editrice, anno, prezzo e lingua).
+ 	Dettagli: la funzione riceve come parametro l'ISBN del libro richiesto e seleziona la tupla corrispondente dalla tabella libri_table, cioè dal catalogo; la funzione, infatti, si occupa di leggere i dati del libro presenti nel catalogo; tutti i dati vengono prelevati e inseriti in un array di stringhe che sarà poi il ritorno della funzione in questione.
+ 	Un controllo preventivo si rende necessario per verifica l'effettiva presenza del libro richiesto. In caso il libro non sia presente viene ritornato immediatamente un array di stringhe vuoto, in caso positivo si procede con l'estrazione dei dati richiesti.
+ 	Come detto la funzione ritorna un array di stirnghe.
+ 	
+ - leggiLibroVenditore:
+ 	La funzione restituisce i valori del libro ricercato presente nella libreria del venditore.
+ 	Dettagli: a differenza di leggiLibro, questa funzione legge i dati presenti nella tabella libro_venditore, che corrisponde alla libreria personale di ogni libreria. La funzione riceve come parametro l'ISBN del libro ricercato e procede alla costruzione di una matrice di stringhe contente i libri che hanno l'ISBN richiesto e reso disponibile da ogni libreria.
+ 	Inizialmente vengono contate il numero di tuple presenti all'interno della tabella libro_venditore che hanno l'ISBN richiesto; questo viene attraverso una semplice query che avrà come clausola WHERE proprio l'ISBN in questione.
+ 	Il numero così ottenuto servirà come parametro per la creazione della matrice che conterrà di dati richiesti; viene quindi creata una matrice di stringhe che avrà un numero di righe pari al numero precedentemente trovato e un numero di colonne pari a 3; infatti dovrà avere come attributi: nome, sconto e copie.
+ 	Creata la matrice di procede a prelevare da libro_venditore i dati richiesti; si effettua un ulteriore controllo per verificare che delle tuple sia state effettivamente selezionate e in caso positivo si prelevano i dati dal ResultSet, altrimenti viene ritornata una matrice vuota.
+ 	
+ - leggiNomeLibreria:
+ 	La funzione legge il nome della libreria richiesta.
+ 	Dettagli: la funzione riceve come parametro l'email della libreria di cui si vuol recuperare il nome. Procede ad una semplice query in cui viene inserita come clausola WHERE l'email; si controlla che il ResultSet contenga la tupla e in caso positivo si estrae il nome richiesto, altrimenti viene restituito errore.
+ 	La funzione ritorna una stringa che conterrà il nome della libreria nel caso in cui non si siano presentati errori, altrimenti una stringa vuota.
+ 	
+ - leggiNumeroRecensioni:
+ 	La funzione il numero di recenzioni presenti per il libro richiesto.
+ 	Dettagli: la funzione riceve come parametro l'ISBN del libro richiesto e procede all'interrogazione della tabella commenti contanto il numero di tuple presenti che abbiamo come valore dell'attributo ISBN l'ISBN passato per parametro. Anche in questa situazione viene controllato che il ResultSet abbia effettivamente un contenuto e in caso positivo si estrae il dato richiesto, altrimenti viene restituito errore.
+ 	La funzione ritorna un intero che sarà 0 in caso di errore, e avrà, invece, valore positivo negli altri casi.
+ 	
+ - leggiRecensione: 
+ 	La funzione preleva i dati necessari a visualizzare la recensione rilasciata da un particolare utente su uno specifico libro.
+ 	Dettagli: la funzione riceve come parametro il nickname dell'utente richiesto e l'ISBN del libro.
+ 	Viene prima recuperato il titolo del libro interrogando la tabella libri_table utilizzando nella clausola WHERE l'ISBN del libro. Se una tupla è stata selezionata si estrae il dato, altrimenti viene restituito errore.
+ 	Si passa poi al recupero del corpo del commento: si interroga la tabella commenti specificando nickname e ISBN; se una tupla è stata selezionata si estrae il dato, altrimenti viene restituito errore.
+ 	Viene infine ritornao un array contente il titolo del libro e il corpo della recensione.
+ 	La funzione, quindi, ritorna un array di stringhe che conterrà titolo e corpo in caso errore, vuoto altrimenti.
+ 	
+ - leggiRecensioneLibro:
+ 	La funzione si occupa di restituire tutte le recensioni rilasciate su un particolare libro.
+ 	Dettagli: la funzione riceve un unico parametro che è l'ISBN del libro di cui si vuole prelevare tutte le recensioni; viene da prima richiamata la funzione leggiNumeroRecensioni per recuperare il numero di recensioni presenti per quel libro; il numero servirà per creare la matrice che accoglierà i dati richiesti. Il numero, in particolare, verrà utilizzato per la lunghezza delle righe, mentre il numero di colonne rimarrà fisso a 4.
+ 	Creata la matrice si procede ad effettuare la query; la tabella interrogata è commenti e da essa vengono estratti il corpo, la data e il nickname e l'id; si controlla che il ResultSet contenga effettivamente delle tuple e in caso negativo viene restituito un errore, altrimenti si procede all'estrazione dei dati richiesti. Infine si popola la matrice con i dati prelevati e si restituisce questa come risultato.
+ 	La funzione ritorna una matrice non vuota se l'esito è stato positivo, altrimenti avrà valore nullo.
+ 	
+ - leggiRecensioniUtente:
+ 	La funzione restituisce tutte le recensioni sottomesse da un particolare utente.
+ 	Dettagli: la funzione ha come unico parametro il nickname dell'utente del quale si vogliono recuperare le recensioni.
+ 	Vengono prima contate il numero di recensioni presenti all'interno della tabella commenti per quell'utente; tale numero verrà utilizzato per creare la matrice che andrà a contenere i risultati richiesti. Se, però, il numero sarà uguale a 0 verrà restituito errore, altrimenti creata la matrice.
+ 	A questo punto si procede all'estrazione di tutte le tuple di quel particolare utente. I valori estratti verranno inseriti nella matrice e restituito come risultato della funzione.
+ 	La funzione ritorna - appunto - una matrice di stringhe che avrà contenuto non nulla in caso di esito positivo, altrimenti avrà valori nulli.
+ 	
+ - leggiScontoCopie:
+ 	La funzione si occupa di leggere il valore di sconto e copie di un particolare libro.
+ 	Dettagli: la funzione riceve come parametro l'ISBN del libro richiesto e procede ad estrarre dalla tabella libro_venditore titolo, sconto e copie. L'attributo titolo non è presente in tale tabella, ma viene recuperato mediante un JOIN dalla tabella libri_table.
+ 	Un controllo viene realizzato sul ResulSet per verificare che contenga delle tuple: in caso negativo si ritorna errore, altrimenti si procede all'estrazione dei dati.
+ 	La funzione ritorna un array di stringhe che conterrà valori non nulli in caso di esito positivo, altrimenti avrà valori nulli.
+ 	
+ - leggiVotoUtente:
+ 	La funzione legge il voto rilasciato da un particolare utente su uno specifico libro.
+ 	Dettagli: la funzione riceve come parametri il nickname e l'ISBN richiesti.
+ 	Interroga la tabella voti_libri prelevando il voto sottomesso dall'utente richiesto su quel particolare libro; viene controllato il contenuto del ResultSet e se questo è vuoto viene restituito errore, altrimenti si procede.
+ 	 Viene estratto il valore recuperato con la query e restituito come valore di ritorno della funzione.
+ 	 La funzione, quindi, ritorna un intero che avrà valori positivi maggiori di 0 in caso di successo, altrimenti valore uguale a 0.
+ 	 
+ - listaNovita:
+ 	La funzione recupera gli ultimi libri inseriti all'interno del catalogo.
+ 	Dettagli: la funzione non riceve alcun parametro e procede al conteggio del libri presenti in libri_table attraverso la funzione contaLibriMod; il numero recuperato viene controllato e utilizzando in questo modo: se il numero è minore o uguale a 0 viene restituito errore, se è compreso da 0 (escluso) e 4 (incluso) viene creata una matrice di righe pari a numero e colonne pari a 3, se invece numero è maggiore di 4 (escluso) viene creata una matrice di righe pari a 4 e colonne pari a 3.
+ 	La matrice così creata conterrà il risultato che la funzione ritornerà.
+ 	A questo punto si passa all'interrogazione di libri_table e all'estrazione dei dati necessari; prima di prelevare i valori viene però controllato il ResultSet, e nel caso in cui fosse vuoto viene ritornato errore. Passato questo controllo si passa a popolare la matrice precedentemente creata che verrà ritornata dalla funzione in caso di successo.
+ 	La funzione, quindi, ritorna una matrice con valori non nulli in caso di esito positivo, altrimenti una matrice nulla.
+ 	
+ - loginLibrerie:
+ 	La funzione si occupa di recuperare i dati necessari all'approvazione della login della libreria.
+ 	Dettagli: la funzione riceve come parametri l'email e la password; entrambi vengono utilizzati per interrogare la tabella vendors al fine di controllare i dati ricevuti ed approvare o respingere il tentativo di login.
+ 	Se il ResultSet ottenuto tramite la query contiene tuple, allora la login ha avuto successo, altrimenti si rifiuta la login perché o email e password non coincidono, oppure l'email inserita non è presente all'interno della tabella.
+ 	La funzione ritorna valori interi che sarà 0 in caso di esito positivo, 1 in caso di errore, -1 in caso di rifiuto della login e -2 in caso di mancata connessione al database.
+ 	
+ - loginUsers:
+ 	La funzione si occupa di recuperare i dati necessari all'approvazione della login dell'utente.
+ 	Dettagli: la funzione riceve come parametri il nickname e la password; entrambi vengono utilizzati per interrogare la tabella users al fine di controllare i dati ricevuti ed approvare o respingere il tentativo di login.
+ 	Se il ResultSet ottenuto tramite la query contiene tuple, allora la login ha avuto successo, altrimenti si rifiuta la login perché o il nickname e la password non coincidono, oppure il nickname inserito non è presente all'interno della tabella.
+ 	La funzione ritorna valori interi che sarà 0 in caso di esito positivo, 1 in caso di errore, -1 in caso di rifiuto della login e -2 in caso di mancata connessione al database.
+ 	
+ - modificaRecensione:
+ 	
+ 	
+ 	

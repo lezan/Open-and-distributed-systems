@@ -1707,7 +1707,7 @@ public class Server {
 			return result;
 		}
 		try {
-			String query = "select count(id) as numero from commenti where nickname=?;";
+			String query = "SELECT COUNT(id) AS numero FROM commenti WHERE nickname=?;";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, nickname);
 			ResultSet rs = prstmt.executeQuery();
@@ -1721,12 +1721,12 @@ public class Server {
 			e.printStackTrace();
 			return result;
 		}
-		if(numero==0){
+		if(numero==0) {
 			return result;
 		}
-		else{
-		result = new String[numero][4];
-		ResultSet rs;
+		else {
+			result = new String[numero][4];
+			ResultSet rs;
 		try {
 			String query = "SELECT * FROM libri_table JOIN (SELECT * FROM commenti WHERE nickname=? ORDER BY data DESC)as rec_utente on rec_utente.ISBN=libri_table.ISBN;";
 			PreparedStatement prstmt = con.prepareStatement(query);
@@ -2343,7 +2343,7 @@ public class Server {
 		return risultato;
 	}
 
-	public String[][] ricercaLibriLibreria2(String nomeLibreria) {
+	public String[][] ricercaLibriLibreria(String nomeLibreria) {
 		String[][] risultato = null;
 		int numero = 0;
 		if (!connectDatabase()) {
@@ -2366,7 +2366,7 @@ public class Server {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 		}
-		risultato = new String[numero][8];
+		risultato = new String[numero][9];
 		try {
 			String query = "SELECT ISBN,sconto,copie FROM libro_venditore WHERE nome=? ORDER BY ISBN;";
 			PreparedStatement prstmt = con.prepareStatement(query);
@@ -2389,7 +2389,7 @@ public class Server {
 			e.printStackTrace();
 		}
 		try {
-			String query = "SELECT titolo,autore,casa_editrice,prezzo,lingua FROM libri_table WHERE ISBN = ANY("
+			String query = "SELECT titolo,autore,casa_editrice,prezzo,lingua,anno FROM libri_table WHERE ISBN = ANY("
 					+ "SELECT ISBN FROM libro_venditore WHERE nome=? ORDER BY ISBN);";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, nomeLibreria);
@@ -2404,6 +2404,7 @@ public class Server {
 					risultato[i][3] = rs.getString("casa_editrice");
 					risultato[i][4] = rs.getString("prezzo");
 					risultato[i][5] = rs.getString("lingua");
+					risultato[i][8] = rs.getString("anno");
 				}
 				i++;
 			}
@@ -2414,125 +2415,9 @@ public class Server {
 			e.printStackTrace();
 		}
 		for(int i=0;i<numero;i++) {
-			for(int j=0;j<8;j++) {
+			for(int j=0;j<9;j++) {
 				System.out.println("["+i+","+j+"]="+risultato[i][j]);
 			}
-		}
-		return risultato;
-	}
-
-	public String[][] ricercaLibriLibreria(String nomeLibreria) {
-		String[][] risultato = null;
-		int numero = 0;
-		if (!connectDatabase()) {
-			return risultato;
-		}
-		//Primo conto il numero di libri che ha questa libreria
-		try {
-			String query = "SELECT count(ISBN) as numero FROM libro_venditore WHERE nome=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nomeLibreria);
-			ResultSet rs = prstmt.executeQuery();
-			if (rs.next() == false) {
-				return risultato;
-			} else {
-				numero = rs.getInt("numero");
-			}
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		//Costruisco una matrice in grado di ricevere tutti i libri di quella libreria
-		risultato = new String[numero][8];
-		try {
-			String query = "SELECT ISBN,sconto,copie FROM libro_venditore WHERE nome=? ORDER BY ISBN;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nomeLibreria);
-			ResultSet rs = prstmt.executeQuery();
-			int i=0;
-			while (rs.next()) {
-				//for (int i = 0; i <= numero; i++) {
-				if(i<numero) {
-					risultato[i][1] = rs.getString("ISBN");
-					risultato[i][6] = rs.getString("sconto");
-					risultato[i][7] = rs.getString("copie");
-				}
-				i++;
-			}
-			prstmt.close();
-			rs.close();
-		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		try {
-			String query = "SELECT titolo,autore,casa_editrice,prezzo,lingua FROM libri_table WHERE ISBN=? ORDER BY ISBN;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			for (int i = 0; i < numero; i++) {
-				for (int j = 0; j < 8; j++) {
-					prstmt.setString(1, risultato[i][1]);
-					ResultSet rs = prstmt.executeQuery();
-					if (rs.next()) {
-						risultato[i][0] = rs.getString("titolo");
-						risultato[i][2] = rs.getString("autore");
-						risultato[i][3] = rs.getString("casa_editrice");
-						risultato[i][4] = rs.getString("prezzo");
-						risultato[i][5] = rs.getString("lingua");
-					}					
-					rs.close();
-				}
-			}
-			prstmt.close();
-		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-		}
-		return risultato;
-	}
-
-	public String[][] ricercaLibreria(String nomeLibreria) {
-		int numero = 0;
-		String[][] risultato = null;
-		if (!connectDatabase()) {
-			return risultato;
-		}
-		try {
-			String query = "SELECT * FROM libri_table WHERE nome=?;";
-			PreparedStatement prstmt = con.prepareStatement(query);
-			prstmt.setString(1, nomeLibreria);
-			ResultSet rs = prstmt.executeQuery();
-			if ((numero = contaLibri(prstmt.toString())) == 0) {
-				return risultato;
-			}
-			risultato = new String[numero][8];
-			if (!(rs.next())) {
-				System.out.println("Nessun risultato trovato.\n");
-				return risultato;
-			}
-			rs.beforeFirst();
-			int i = 0;
-			while (rs.next()) {
-				// for (int i = 0; i < numero; i++) {
-				if (i < numero) {
-					risultato[i][0] = rs.getString("titolo");
-					risultato[i][1] = rs.getString("autore");
-					risultato[i][2] = rs.getString("anno");
-					risultato[i][3] = rs.getString("casa_editrice");
-					risultato[i][4] = rs.getString("ISBN");
-					risultato[i][5] = rs.getString("prezzo");
-					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
-				}
-				i++;
-			}
-			rs.close();
-			prstmt.close();
-		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
-			return risultato;
 		}
 		return risultato;
 	}
