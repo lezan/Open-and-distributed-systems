@@ -1675,12 +1675,18 @@ public class Server {
 			if (rs.next()) {
 				titolo = rs.getString("titolo");
 			}
-			query = "SELECT corpo_commento FROM commenti WHERE ISBN=?;";
+			else {
+				return risultato;
+			}
+			query = "SELECT corpo_commento FROM commenti WHERE nickname=? AND ISBN=?;";
 			prstmt = con.prepareStatement(query);
 			prstmt.setString(1, isbn);
 			rs = prstmt.executeQuery();
 			if (rs.next()) {
 				corpo = rs.getString("corpo_commento");
+			}
+			else {
+				return risultato;
 			}
 			prstmt.close();
 			rs.close();
