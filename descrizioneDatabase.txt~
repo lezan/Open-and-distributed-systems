@@ -4,6 +4,7 @@ Tabella commenti:
 	La tabella tiene conto di tutte le recensioni che gli utenti posso rilasciare su di un libro.
 	
 	Struttura:
+	nickname, ISBN (unique);
 	id (int,auto increment, chiave primaria);
 	nickname (varchar, chiave esterna su users(nickname));
 	ISBN (varchar, chiave esterna su libri_table(ISBN));
@@ -39,6 +40,7 @@ Tabella users:
 	La tabella contiene tutti gli utenti iscritti al sito web.
 	
 	Struttura:
+	indirizzo, citta, cap (unique);
 	nickname (varchar, chiave primaria);
 	password (varchar);
 	email (varchar, unique);
@@ -49,19 +51,22 @@ Tabella users:
 	indirizzo (varchar);
 	citta (varchar);
 	cap (varchar);
-	telefono (varchar);
-	telefono2 (varchar);
+	telefono (varchar, unique);
+	telefono2 (varchar, unique);
 	
 Tabella vendors:
 	La tabella contiene tutte le librerie iscritte al sito web.
 	
 	Struttura:
+	indirizzo, citta, cap (unique);
 	nome (varchar, chiave primaria);
 	password (varchar);
 	email (varchar, unique);
 	indirizzo (varchar);
 	citta (varchar);
 	cap (varchar);
+	telefono (varchar, unique);
+	fax (varchar, unique)
 	partita_iva (varchar, unique);
 	
 Tabella voti_libri:

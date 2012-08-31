@@ -4,6 +4,7 @@ Tabella commenti:
 	La tabella tiene conto di tutte le recensioni che gli utenti posso rilasciare su di un libro.
 	
 	Struttura:
+	nickname, ISBN (unique);
 	id (int,auto increment, chiave primaria);
 	nickname (varchar, chiave esterna su users(nickname));
 	ISBN (varchar, chiave esterna su libri_table(ISBN));
@@ -29,7 +30,7 @@ Tabella libro_venditore
 	La tabella contiene tutti i libri messi a disposizione dalla librerie.
 	
 	Struttura:
-	nome, titolo (chiave primaria);
+	nome, ISBN (chiave primaria);
 	nome (varchar, chiave esterna su vendors(nome));
 	ISBN (varchar, chiave esterna su libri_table(ISBN));
 	sconto (int);
