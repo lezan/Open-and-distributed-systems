@@ -40,6 +40,52 @@ La libreria può inserire nuovi libri al catalogo e alla propria libreria person
 Come si può vedere, la registrazione (specialmente quella utente) non offre molte più funzionalità rispetto al visitatore e questo è stato voluto: il nostro obiettivo era  un servizio che fosse accessibile, senza limitazioni e con la minima diffusione di dati personali.
 Inoltre, è stata prevista (ma non implementata) la possibilità da parte dell'utente registrato di acquistare libri dalle librerie, consultanto il catalogo e scegliendo la libreria che ha l'offerta migliore su quel libro.
 
+APACHE HTTPD
+
+Non c'è molto da dire riguardo all'utilizzo di Apache.
+Soltanto piccole modifiche sono state apportate al file di configurazione httpd.conf per permettere il RewriteRule.
+Invece, c'è qualcosa da dire riguardo all'utilizzo del file di configurazione htaccess.
+
+htaccess e RewriteRule.
+
+L'utilizzo della riscrittura degli url è stato di fondamentale importanza e ci ha permesso di utilizzare una pagina PHP per un numero infinito di casi.
+Che cosa significa?
+Faccio un esempio e spiego meglio.
+Prendiamo il caso della pagina PHP libro.php; come vedremo nel dettaglio in seguito, basti sapere che tale pagina mostra tutte le informazioni relative ad un libro. E' chiaro che - trattandosi di una libreria - potenzialmente i libri sono infiniti ed è impossibile prevedere una pagina specifica per ogni libro; ma allora come fare per realizzare una sola pagina per tutti i libri? 
+Ecco che allora ci serviamo del RewriteEngine; la riscrittura degli url ci consente proprio questo: convertire una richiesta ad un url differente.
+Vediamo ora l'esempio per capire meglio.
+Mettiamo che vogliamo vedere le informazioni relative ad un libro che ha ISBN '3n4j6jjdje03'.
+Il link che l'utente vedrà sarà www.miosito.org/books/3n4j6jjdje03.
+A questo punto entra in gioco la RewriteEngine e converte quell'url in libro.php?ISBN=3n4j6jjdje03.
+La pagina PHP libro.php quindi legge come url libro.php?ISBN=3n4j6jjdje03 e non www.miosito.org/books/3n4j6jjdje03.
+A questo punto si recupera l'isbn dall'url in questo modo 
+
+	function getUrl() {
+ 		return substr($_SERVER["QUERY_STRING"],strrpos($_SERVER["QUERY_STRING"],"=")+1);
+	}
+	$isbn=getUrl();
+
+e in base a questo si mostra il libro voluto dal client.
+La RewriteRule necessaria nell'esempio fatto è
+	RewriteRule ^books/(.*) /libro.php?ISBN=$1
+
+Le informazioni utiliti alla riscrittura dell'url vengono prese dal file .htaccess
+Ecco il nostro:
+
+	Options +FollowSymLinks
+	RewriteEngine on
+	RewriteRule ^cancella/recensione/(.*) /rimuoviRecensione.php?ISBN=$1
+	RewriteRule ^modifica/recensione/(.*) /modificaRecensione.php?ISBN=$1
+	RewriteRule ^aggiungi/recensione/(.*) /aggiungiRecensione.php?ISBN=$1
+	RewriteRule ^modifica/libro/(.*) /modificaLibro.php?ISBN=$1
+	RewriteRule ^cancella/libro/(.*) /rimuoviLibro.php?ISBN=$1
+	RewriteRule ^books/(.*) /libro.php?ISBN=$1
+	RewriteRule ^autore/(.*) /autoreLibro.php?autore=$1
+	RewriteRule ^libreria/(.*) /profiloPubblicoLibreria.php?libreria=$1
+	RewriteRule ^modifica/catalogo/(.*) /modificaLibroCatalogo.php?ISBN=$1
+
+Tutto avviene ovviamente lato server e il client non si accorge di nulla.
+
 DATABASE
 
 DBMS scelto.
@@ -163,7 +209,7 @@ QUA CI METTIAMO LE FOTO NOSTRE. BASUHAUSHAS.
 
 DEBUGING
 
-Come si è debuggato il codice?
+Come si è debugato il codice?
 
 Il debug non ha portato via più di tanto tempo, ma sicuramente il codice conterrà ancora diversi bug.
 L'utilizzo dell'IDE - in particolare di Eclipse - ha permesso, nei casi di più estremi, di ricorrere all'avvio del server Tomcat in modidalità debug, così da scovare l'errore che si celava all'interno dell'albero. Uno strumento veramente utile che fortunamente è stato utilizzato poche volte.
