@@ -319,6 +319,21 @@ public class Server {
 		for(int i=0;i<14;i++) {
 			System.out.println(i+"=>"+campi[i]);
 		}
+		/*campi[0]=password old;
+		 * campi[1]= password new;
+		 * campi[2]=email;
+		 * campi[3]=nome_utente;
+		 * campi[4]=cognome;
+		 * campi[5]=indirizzo;
+		 * campi[6]=citta;
+		 * campi[7]=cap;
+		 * campi[8]=telefono
+		 * campi[9]=telefono2;
+		 * campi[10]=nickuser;
+		 * campi[11]=anno
+		 * campi[12]=mese
+		 * campi[13]=giorno 
+		 */
 		try{
 			String query;
 			PreparedStatement prstmt;
@@ -352,7 +367,12 @@ public class Server {
 			prstmt.setString(3, campi[4]);
 			prstmt.setString(4, campi[5]);
 			prstmt.setString(5, campi[6]);
-			prstmt.setInt(6, Integer.valueOf(campi[7]).intValue());
+			if(campi[7].equals("")) {
+				prstmt.setNull(6, java.sql.Types.INTEGER);
+			}
+			else {
+				prstmt.setInt(6, Integer.valueOf(campi[7]).intValue());
+			}
 			prstmt.setString(7, campi[8]);
 			prstmt.setString(8, campi[9]);			
 			prstmt.setDate(9, data.valueOf(campi[11]+"-"+campi[12]+"-"+campi[13]));
@@ -667,9 +687,16 @@ public class Server {
 			result[6] = rs.getString("telefono");
 			result[7] = rs.getString("telefono2");
 			data=rs.getString("data_nascita");
-			result[8] = data.substring(0, 4);
-			result[9] = data.substring(5, 7);
-			result[10] = data.substring(8, 10);
+			if(data==null) {
+				result[8] = "- -";
+				result[9] = "- -";
+				result[10] = "- -";
+			}
+			else { 
+				result[8] = data.substring(0, 4);
+				result[9] = data.substring(5, 7);
+				result[10] = data.substring(8, 10);
+			}
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
