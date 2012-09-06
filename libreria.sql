@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generato il: Ago 31, 2012 alle 16:10
+-- Generato il: Set 06, 2012 alle 16:50
 -- Versione del server: 5.1.63-0ubuntu0.11.10.1
 -- Versione PHP: 5.4.0
 
@@ -84,15 +84,15 @@ CREATE TABLE IF NOT EXISTS `users` (
   `nickname` varchar(30) NOT NULL,
   `password` varchar(30) NOT NULL,
   `email` varchar(30) NOT NULL,
-  `location` varchar(50) NOT NULL DEFAULT 'default',
-  `data_nascita` date NOT NULL,
-  `nome` varchar(30) NOT NULL,
-  `cognome` varchar(30) NOT NULL,
-  `indirizzo` varchar(30) NOT NULL,
-  `citta` varchar(30) NOT NULL,
-  `cap` int(8) NOT NULL,
-  `telefono` varchar(15) NOT NULL,
-  `telefono2` varchar(15) NOT NULL,
+  `location` varchar(50) DEFAULT 'default',
+  `data_nascita` date DEFAULT NULL,
+  `nome` varchar(30) DEFAULT NULL,
+  `cognome` varchar(30) DEFAULT NULL,
+  `indirizzo` varchar(30) DEFAULT NULL,
+  `citta` varchar(30) DEFAULT NULL,
+  `cap` int(8) DEFAULT NULL,
+  `telefono` varchar(15) DEFAULT NULL,
+  `telefono2` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`nickname`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `indirizzo` (`indirizzo`,`citta`,`cap`),
@@ -142,8 +142,8 @@ CREATE TABLE IF NOT EXISTS `voti_libri` (
 -- Limiti per la tabella `commenti`
 --
 ALTER TABLE `commenti`
-  ADD CONSTRAINT `commenti_ibfk_3` FOREIGN KEY (`ISBN`) REFERENCES `libri_table` (`ISBN`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `commenti_ibfk_2` FOREIGN KEY (`nickname`) REFERENCES `users` (`nickname`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `commenti_ibfk_2` FOREIGN KEY (`nickname`) REFERENCES `users` (`nickname`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `commenti_ibfk_3` FOREIGN KEY (`ISBN`) REFERENCES `libri_table` (`ISBN`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `libri_table`
@@ -155,15 +155,15 @@ ALTER TABLE `libri_table`
 -- Limiti per la tabella `libro_venditore`
 --
 ALTER TABLE `libro_venditore`
-  ADD CONSTRAINT `libro_venditore_ibfk_2` FOREIGN KEY (`nome`) REFERENCES `vendors` (`nome`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `libro_venditore_ibfk_1` FOREIGN KEY (`ISBN`) REFERENCES `libri_table` (`ISBN`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `libro_venditore_ibfk_1` FOREIGN KEY (`ISBN`) REFERENCES `libri_table` (`ISBN`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `libro_venditore_ibfk_2` FOREIGN KEY (`nome`) REFERENCES `vendors` (`nome`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `voti_libri`
 --
 ALTER TABLE `voti_libri`
-  ADD CONSTRAINT `voti_libri_ibfk_2` FOREIGN KEY (`username`) REFERENCES `users` (`nickname`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `voti_libri_ibfk_1` FOREIGN KEY (`ISBN`) REFERENCES `libri_table` (`ISBN`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `voti_libri_ibfk_1` FOREIGN KEY (`ISBN`) REFERENCES `libri_table` (`ISBN`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `voti_libri_ibfk_2` FOREIGN KEY (`username`) REFERENCES `users` (`nickname`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

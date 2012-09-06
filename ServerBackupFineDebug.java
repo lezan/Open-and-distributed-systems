@@ -9,7 +9,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import org.apache.axis.encoding.Base64;
+
+/*import java.sql.Statement; */
+
+/*Aggiungere possibilità di votare i libri*/
+/*Aggiungere recensione ai libri*/
+/*Commentare i libri*/
 
 public class Server {
 
@@ -17,18 +24,20 @@ public class Server {
 
 	boolean connectDatabase() {
 		if (con == null) {
-			String username = "libreria"; /* username database mysql */
-			String password = "libreria"; /* password database mysql */
+			String username = "root"; /* username database mysql */
+			String password = "lezan"; /* password database mysql */
 			String database = "libreria"; /* database mysql */
 			String serverName = "localhost:3306"; /* sarà localhost */
 			String url = "jdbc:mysql://" + serverName + "/" + database;
 			try {
 				Class.forName("com.mysql.jdbc.Driver").newInstance();
 				con = DriverManager.getConnection(url, username, password);
-				System.out.println("Connessione al database avvenuta correttamente.\n");
+				System.out
+						.println("Connessione al database avvenuta correttamente.\n");
 				return true;
 			} catch (Exception e) {
-				System.out.println("Errore: impossibile connettersi al database.\n");
+				System.out
+						.println("Errore: impossibile connettersi al database.\n");
 				System.out.println("Errore" + e.getMessage());
 				return false;
 			}
@@ -37,7 +46,12 @@ public class Server {
 		}
 	}
 
-	public int iscrizioneUser(String nickuser,String passwd,String passwdc, String email) {
+	public int iscrizioneUser(String nickuser,String passwd,String passwdc,
+			String email) {
+		/*
+		 * Mettere controllo validità email. Esempio: contiene più di 8
+		 * caratteri
+		 */
 		if (!connectDatabase()) {
 			return 2;
 		}
@@ -91,6 +105,10 @@ public class Server {
 	public int iscrizioneLibrerie(String nome, String passwd, String passwdc,
 			String email, String indirizzo, String citta, String cap,
 			String partitaIva) {
+		/*
+		 * Mettere controllo validità email. Esempio: contiene più di 8
+		 * caratteri
+		 */
 		if (!connectDatabase()) {
 			return 2;
 		}
@@ -150,7 +168,6 @@ public class Server {
 			prstmt4.close();
 		} catch (SQLException e) {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
 			return 8;
 		}
 		return 1;
@@ -184,6 +201,7 @@ public class Server {
 		return 0;
 	}
 
+	/* Facciamo che le librerie si loggano con l'email e la password?! */
 	public int loginLibrerie(String email, String passwd) {
 		if (!connectDatabase()) {
 			return -2;
@@ -212,6 +230,13 @@ public class Server {
 		return 0;
 	}
 
+	/*
+	 * public enum Nome { password, email, indirizzo, citta, cap, telefono,
+	 * telefono_2, nome, cognome; }
+	 * 
+	 * public boolean editUser(String nomeCampo, String campo) {
+	 * switch(Nome.valueOf(nomeCampo)) { case password: break; } return true; }
+	 */
 	/* Funzione per verificare la password prima di fare modifiche */
 
 	boolean checkPasswordUsers(String nickuser, String passwd) {
@@ -312,6 +337,13 @@ public class Server {
 		return true;
 	}
 
+	/*
+	 * Decidere come fare le return perché così funziona a merda. Inoltre, in
+	 * questo modo si può modificare solo un campo alla volta; cercare un'altro
+	 * metodo per modificare più campi alla volta. Forse con due array campo[] e
+	 * nomeCampo[]?!
+	 */
+
 	public int editUser(String[] campi) {
 		if (!connectDatabase()) {
 			return -1;
@@ -324,11 +356,17 @@ public class Server {
 			PreparedStatement prstmt;
 			if(!campi[0].equals("")&&!campi[1].equals("")) {
 				if(checkPasswordUsers(campi[10],campi[0])) {
-					query = "UPDATE users SET password=? WHERE nickname=?;";
-					prstmt = con.prepareStatement(query);
-					prstmt.setString(1, campi[1]);
-					prstmt.setString(2, campi[10]);
-					prstmt.executeUpdate();
+					if(checkPassword(campi[1])) {
+						query = "UPDATE users SET password=? WHERE nickname=?;";
+						prstmt = con.prepareStatement(query);
+						prstmt.setString(1, campi[1]);
+						prstmt.setString(2, campi[10]);
+						prstmt.executeUpdate();
+					}
+					else {
+						System.out.println("password nuova errata");
+						return 1;
+					}
 				}
 				else {
 					System.out.println("password vecchia errata");
@@ -376,13 +414,19 @@ public class Server {
 			String query;
 			PreparedStatement prstmt;
 			/*Controllo per eventuale cambio password*/
-			if(!campi[0].equals("")&&!campi[1].equals("")) {
-				if(checkPasswordLibrerie(campi[10],campi[0])) {
+			if(!campi[0].equals("")&&!campi[1].equals("")){
+				if(checkPasswordLibrerie(campi[10],campi[0]))	{
+					if(checkPassword(campi[1])){
 					query = "UPDATE vendors SET password=? WHERE email=?;";
 					prstmt = con.prepareStatement(query);
 					prstmt.setString(1, campi[1]);
 					prstmt.setString(2, campi[10]);
 					prstmt.executeUpdate();
+					}
+					else{
+						System.out.println("password nuova errata");
+						return 1;
+					}
 				}
 				else{
 					System.out.println("password vecchia errata");
@@ -461,6 +505,80 @@ public class Server {
 		}
 		return 0;
 	}
+
+	/*
+	 * public boolean editCampiUser(String nickuser, String passwd,String
+	 * nomeCampo, String campo) { if(!connectDatabase()) { return false; } try {
+	 * switch (nomeCampo) { case "password":
+	 * System.out.println("Si modifica la password.\n"); if
+	 * (checkPasswordUsers(nickuser, passwd)) {
+	 * System.out.println("Puoi modificare la password.\n"); String query =
+	 * "UPDATE users SET password=? WHERE nickname=?;"; PreparedStatement prstmt
+	 * = con.prepareStatement(query); prstmt.setString(1, campo);
+	 * prstmt.setString(2, nickuser); prstmt.executeUpdate(); prstmt.close(); }
+	 * else { System.out.println("Password cappellata.\n"); return false; }
+	 * break; case "email": if (checkEmailUsers(campo)) {
+	 * System.out.println("Si modifica l'email.\n"); if
+	 * (checkPasswordUsers(nickuser, passwd)) {
+	 * System.out.println("Puoi modificare l'email.\n"); String query =
+	 * "UPDATE users SET email=? WHERE nickname=?;"; PreparedStatement prstmt =
+	 * con.prepareStatement(query); prstmt.setString(1, campo);
+	 * prstmt.setString(2, nickuser); prstmt.executeUpdate(); prstmt.close(); }
+	 * else { System.out.println("Password cappellata.\n"); return false; } }
+	 * else { System.out.println("Email già utilizzata.\n"); } break; case
+	 * "indirizzo": System.out.println("Si modifica l'indirizzo.\n"); if
+	 * (checkPasswordUsers(nickuser, passwd)) {
+	 * System.out.println("Puoi modificare l'email.\n"); String query =
+	 * "UPDATE users SET indirizzo=? WHERE nickname=?;"; PreparedStatement
+	 * prstmt = con.prepareStatement(query); prstmt.setString(1, campo);
+	 * prstmt.setString(2, nickuser); prstmt.executeUpdate(); prstmt.close(); }
+	 * else { System.out.println("Password cappellata.\n"); return false; }
+	 * break; case "citta": System.out.println("Si modifica la città.\n"); if
+	 * (checkPasswordUsers(nickuser, passwd)) {
+	 * System.out.println("Puoi modificare la città.\n"); String query =
+	 * "UPDATE users SET citta=? WHERE nickname=?;"; PreparedStatement prstmt =
+	 * con.prepareStatement(query); prstmt.setString(1, campo);
+	 * prstmt.setString(2, nickuser); prstmt.executeUpdate(); prstmt.close(); }
+	 * else { System.out.println("Password cappellata.\n"); return false; }
+	 * break; case "cap": System.out.println("Si modifica il cap.\n"); if
+	 * (checkPasswordUsers(nickuser, passwd)) {
+	 * System.out.println("Puoi modificare il cap.\n"); String query =
+	 * "UPDATE users SET cap=? WHERE nickname=?;"; PreparedStatement prstmt =
+	 * con.prepareStatement(query); prstmt.setString(1, campo);
+	 * prstmt.setString(2, nickuser); prstmt.executeUpdate(); prstmt.close(); }
+	 * else { System.out.println("Password cappellata.\n"); return false; }
+	 * break; case "telefono": System.out.println("Si modifica il telefono.\n");
+	 * if (checkPasswordUsers(nickuser, passwd)) {
+	 * System.out.println("Puoi modificare il telefono.\n"); String query =
+	 * "UPDATE users SET telefono=? WHERE nickname=?;"; PreparedStatement prstmt
+	 * = con.prepareStatement(query); prstmt.setString(1, campo);
+	 * prstmt.setString(2, nickuser); prstmt.executeUpdate(); prstmt.close(); }
+	 * else { System.out.println("Password cappellata.\n"); return false; }
+	 * break; case "telefono2": System.out.println("Si modifica telefono 2.\n");
+	 * if (checkPasswordUsers(nickuser, passwd)) {
+	 * System.out.println("Puoi modificare telefono 2.\n"); String query =
+	 * "UPDATE users SET telefono_2=? WHERE nickname=?;"; PreparedStatement
+	 * prstmt = con.prepareStatement(query); prstmt.setString(1, campo);
+	 * prstmt.setString(2, nickuser); prstmt.executeUpdate(); prstmt.close(); }
+	 * else { System.out.println("Password cappellata.\n"); return false; }
+	 * break; case "nome": System.out.println("Si modifica il nome.\n"); if
+	 * (checkPasswordUsers(nickuser, passwd)) {
+	 * System.out.println("Puoi modificare il nome.\n"); String query =
+	 * "UPDATE users SET nome=? WHERE nickname=?;"; PreparedStatement prstmt =
+	 * con.prepareStatement(query); prstmt.setString(1, campo);
+	 * prstmt.setString(2, nickuser); prstmt.executeUpdate(); prstmt.close(); }
+	 * else { System.out.println("Password cappellata.\n"); return false; }
+	 * break; case "cognome": System.out.println("Si modifica il cognome.\n");
+	 * if (checkPasswordUsers(nickuser, passwd)) {
+	 * System.out.println("Puoi modificare il cognome.\n"); String query =
+	 * "UPDATE users SET cognome=? WHERE nickname=?;"; PreparedStatement prstmt
+	 * = con.prepareStatement(query); prstmt.setString(1, campo);
+	 * prstmt.setString(2, nickuser); prstmt.executeUpdate(); prstmt.close(); }
+	 * else { System.out.println("Password cappellata.\n"); return false; }
+	 * break; default: break; } } catch (SQLException e) {
+	 * System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n"
+	 * ); e.printStackTrace(); } return true; }
+	 */
 
 	public boolean checkPassword(String password) {
 		if (password.length() >= 8) {
@@ -621,6 +739,7 @@ public class Server {
 				rs.beforeFirst();
 				int i=0;
 				while (rs.next()) {
+					//for (int i = 0; i <= numero; i++) {
 					if(i<numero) {
 						for (int j = 0; j < 3; j++) {
 							if (j == 0) {
@@ -803,7 +922,8 @@ public class Server {
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			System.out
+					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 			return editore;
 		}
@@ -829,7 +949,8 @@ public class Server {
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			System.out
+					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 			return data;
 		}
@@ -854,7 +975,8 @@ public class Server {
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			System.out
+					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 			return lingua;
 		}
@@ -995,6 +1117,7 @@ public class Server {
 		if (!connectDatabase()) {
 			return -1;
 		}
+		/*String nome=leggiNomeLibreria(campi[0]);*/
 		try{
 			String query="UPDATE libri_table SET titolo=?,autore=?,casa_editrice=?,anno=?,lingua=?,prezzo=? WHERE ISBN=?;";
 			PreparedStatement prstmt;
@@ -1006,6 +1129,7 @@ public class Server {
 			prstmt.setString(5, campi[6]);
 			prstmt.setDouble(6,Double.parseDouble(campi[7]));
 			prstmt.setString(7, campi[1]);
+			/*prstmt.setString(8, nome);*/
 			prstmt.executeUpdate();
 			prstmt.close();
 		}
@@ -1106,13 +1230,14 @@ public class Server {
 			rs.close();
 			prstmt.close();
 		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			System.out
+					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 		}
 		return voto;
 	}
 	
-	public String[] leggiScontoCopie(String ISBN) {
+	public String[] leggiScontoCopie(String ISBN){
 		String[] risultato = new String[3];
 		if (!connectDatabase()) {
 			return risultato;
@@ -1186,11 +1311,13 @@ public class Server {
 			PreparedStatement prstmt = con.prepareStatement(query);
 			rs = prstmt.executeQuery();
 			if (rs.next() == false) {
-				return null;
+				risultato[0][0] = "";
+				return risultato;
 			}
 			rs.beforeFirst();			
 			int i=0;
 			while (rs.next()) {
+				//for (int i = 0; i <= numero; i++) {
 				if(i<4) {
 					for (int j = 0; j < 3; j++) {
 						if (j == 0) {
@@ -1211,7 +1338,7 @@ public class Server {
 			rs.close();
 		} catch (SQLException e) {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			return null;
+			return risultato;
 		}
 		return risultato;
 	}
@@ -1224,7 +1351,7 @@ public class Server {
 		}
 		try {
 			String query = "SELECT count(ISBN) AS numero FROM libri_table WHERE titolo LIKE ? OR autore LIKE ? OR anno LIKE ? "
-					+ "OR casa_editrice LIKE ? OR ISBN LIKE ? OR voto LIKE ? OR lingua LIKE ?";
+					+ "OR casa_editrice LIKE ? OR ISBN LIKE ? OR genere LIKE ? OR voto LIKE ? OR lingua LIKE ?";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, "%"+campo+"%");
 			prstmt.setString(2, "%"+campo+"%");
@@ -1233,6 +1360,7 @@ public class Server {
 			prstmt.setString(5, "%"+campo+"%");
 			prstmt.setString(6, "%"+campo+"%");
 			prstmt.setString(7, "%"+campo+"%");
+			prstmt.setString(8, "%"+campo+"%");
 			ResultSet rs = prstmt.executeQuery();
 			if (rs.next() != false) {
 				numero = rs.getInt("numero");
@@ -1292,11 +1420,13 @@ public class Server {
 			PreparedStatement prstmt = con.prepareStatement(query);
 			rs = prstmt.executeQuery();
 			if (rs.next()==false) {
-				return null;
+				risultato[0][0] = "";
+				return risultato;
 			}
 			int i=0;
 			rs.beforeFirst();
 			while (rs.next()) {
+				//for (int i = 0; i < numero; i++) {
 				if (i<4) {
 					for (int j = 0; j < 3; j++) {
 						if (j == 0) {
@@ -1318,9 +1448,9 @@ public class Server {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			return null;
+			return risultato;
 		}
-		for(int i=0;i<numero;i++) {
+		for(int i=0;i<4;i++) {
 			for(int j=0;j<3;j++) {
 				System.out.println("["+i+","+j+"]"+risultato[i][j]);
 			}
@@ -1328,6 +1458,12 @@ public class Server {
 		return risultato;
 	}
 
+	/*
+	 * Questa funzione è da controllare. Un po' articolata, specialemente la
+	 * query annidata. Controllare anche se ci sono errori di chiusura del
+	 * ResultSet rs una volta che si lavora con il ResultSet rs2
+	 */
+	
 	int contaRecensioni() {
 		int numero = 0;
 		if (!connectDatabase()) {
@@ -1369,7 +1505,8 @@ public class Server {
 			PreparedStatement prstmt = con.prepareStatement(query);
 			rs = prstmt.executeQuery();
 			if (rs.next() == false) {
-				return null;
+				risultato[0][0] = "";
+				return risultato;
 			}
 			rs.beforeFirst();
 			int i=0;
@@ -1395,11 +1532,17 @@ public class Server {
 			rs.close();
 		} catch (SQLException e) {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			return null;
+			return risultato;
 		}
 		return risultato;
 	}
 
+	/*
+	 * Controllare se funziona nella query data=CURRENT_TIMESTAMP. In
+	 * alternativa provare ad utilizzare questa query: UPDATE commenti SET
+	 * corpo_commento=?,data=now() WHERE id=? AND ISBN=? AND nickname=? Altre
+	 * idee?
+	 */
 	public int modificaRecensione(String nickname, String ISBN, String corpo) {
 		if (!connectDatabase()) {
 			return -1;
@@ -1458,7 +1601,8 @@ public class Server {
 			prstmt.close();
 			rs.close();
 		} catch (SQLException e) {
-			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			System.out
+					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 			return numero;
 		}
@@ -1485,6 +1629,7 @@ public class Server {
 			int i=0;
 			rs.beforeFirst();
 			while (rs.next()) {
+				//for (int i = 0; i <= numero; i++) {
 				if(i<numero) {
 					for (int j = 0; j < 4; j++) {
 						if (j == 0) {
@@ -1646,6 +1791,54 @@ public class Server {
 		return true;
 	}
 
+	/*
+	 * Funzioni per la ricerca nel database dei libri. Abbiamo 3 funzioni: -
+	 * ricerca: cerca in tutti i campi della tabella libri_tabella; -
+	 * ricercaTitolo: cerca solo nel campo titolo della tabella libri_tabella; -
+	 * ricercaAutore: cerca solo nel campo autore della tabella libri_tabella;
+	 * Capire come sfruttare il campo anno e casa_editrice della tabella
+	 * libri_tabella (forse con altre due nuove ricerche?). Sarà php a decidere
+	 * quale tipo di ricerca fare, cioè quale metodo chiamare. Aggiungere
+	 * ricerca per ISBN.
+	 */
+
+	/*
+	 * Credo che dovremo eliminare questo ArrayList<Libro> e fare tutto con
+	 * matrici di stringhe perché non capisco come lavorare su più righe di
+	 * ArrayList. Cioè, l'oggetto Libro ha più righe o soltanto una?
+	 */
+	/*
+	 * public String[][] ricerca(String campo) { int numero=0; String
+	 * risultato[][]=null; if(!connectDatabase()) { return risultato; } try {
+	 * String query = "SELECT count(id) AS numero FROM libri_table;";
+	 * PreparedStatement prstmt = con.prepareStatement(query); ResultSet rs =
+	 * prstmt.executeQuery(); if(rs != null) { numero=rs.getInt("numero"); }
+	 * prstmt.close(); rs.close(); } catch (SQLException e) {
+	 * System.out.println(
+	 * "Errore. Impossibile eseguire l'operazione richiesta.\n");
+	 * e.printStackTrace(); return risultato; } try { String query =
+	 * "SELECT * FROM libri_table WHERE titolo=? OR autore=? OR anno=? " +
+	 * "OR casa_editrice=? OR ISBN=? OR genere=? OR voto=? OR lingua=?;";
+	 * PreparedStatement prstmt = con.prepareStatement(query);
+	 * prstmt.setString(1, campo); prstmt.setString(2, campo);
+	 * prstmt.setString(3, campo); prstmt.setString(4, campo);
+	 * prstmt.setString(5, campo); ResultSet rs = prstmt.executeQuery(); if (rs
+	 * != null) { while (rs.next()) { for(int i=0;i<numero;i++) {
+	 * risultato[i][0]=rs.getString("id");
+	 * risultato[i][0]=rs.getString("titolo");
+	 * risultato[i][0]=rs.getString("autore");
+	 * risultato[i][0]=rs.getString("anno");
+	 * risultato[i][0]=rs.getString("casa_editrice");
+	 * risultato[i][0]=rs.getString("ISBN");
+	 * risultato[i][0]=rs.getString("prezzo");
+	 * risultato[i][0]=rs.getString("lingua");
+	 * risultato[i][0]=rs.getString("voto"); } } } else {
+	 * System.out.println("Nessun risultato trovato.\n"); return risultato; } }
+	 * catch (SQLException e) {
+	 * System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n"
+	 * ); e.printStackTrace(); return risultato; } return risultato; }
+	 */
+
 	int contaLibri(String query) {
 		int numero = 0;
 		if (!connectDatabase()) {
@@ -1677,7 +1870,10 @@ public class Server {
 		String query = "";
 		String[][] risultato = null;
 		int titolo, autore, isbn, editore, anno, voto, lingua, prezzo;
+		//boolean titolo, autore, isbn, editore, anno, voto, lingua, prezzo;
+		//titolo = autore = isbn = editore = anno = voto = lingua = prezzo = false;
 		titolo = autore = isbn = editore = anno = voto = lingua = prezzo = -1;
+		//boolean primo = true;
 		int cc=1;
 		if (!connectDatabase()) {
 			return risultato;
@@ -1686,56 +1882,71 @@ public class Server {
 			for (int i = 0; i < campi.length; i++) {
 				if (i == 0 && !((campi[i]).equals(""))) {
 					titolo = cc++;
+					//primo = false;
 					query = "SELECT * FROM libri_table WHERE titolo=?";
-				} else if (i == 1 && !((campi[i]).equals(""))) {				
+				} else if (i == 1 && !((campi[i]).equals(""))) {
+					//autore = true;					
 					if (cc==1) {
 						query = "SELECT * FROM libri_table WHERE autore=?";
 					} else {
 						query = query + " AND autore=?";
 					}
 					autore = cc++;
-				} else if (i == 2 && !((campi[i]).equals(""))) {				
+					//primo = false;
+				} else if (i == 2 && !((campi[i]).equals(""))) {
+					//isbn = true;					
 					if (cc==1) {
 						query = "SELECT * FROM libri_table WHERE isbn=?";
 					} else {
 						query = query + " AND isbn=?";
 					}
 					isbn= cc++;
-				} else if (i == 3 && !((campi[i]).equals(""))) {					
+					//primo = false;
+				} else if (i == 3 && !((campi[i]).equals(""))) {
+					//editore = true;					
 					if (cc==1) {
 						query = "SELECT * FROM libri_table WHERE casa_editrice=?";
 					} else {
 						query = query + " AND casa_editrice=?";
 					}
 					editore = cc++;
-				} else if (i == 4 && !((campi[i]).equals(""))) {					
+					//primo = false;
+				} else if (i == 4 && !((campi[i]).equals(""))) {
+					//anno = true;					
 					if (cc==1) {
 						query = "SELECT * FROM libri_table WHERE anno=?";
 					} else {
 						query = query + " AND anno=?";
 					}
 					anno=cc++;
-				} else if (i == 5 && !((campi[i]).equals(""))) {			
+					//primo = false;
+				} else if (i == 5 && !((campi[i]).equals(""))) {
+					//voto = true;					
 					if (cc==1) {
 						query = "SELECT * FROM libri_table WHERE voto=?";
 					} else {
 						query = query + " AND voto=?";
 					}
 					voto=cc++;
-				} else if (i == 6 && !((campi[i]).equals(""))) {					
+					//primo = false;
+				} else if (i == 6 && !((campi[i]).equals(""))) {
+					//lingua = true;					
 					if (cc==1) {
 						query = "SELECT * FROM libri_table WHERE lingua=?";
 					} else {
 						query = query + " AND lingua=?";
 					}
 					lingua=cc++;
-				} else if (i == 7 && !((campi[i]).equals(""))) {					
+					//primo = false;
+				} else if (i == 7 && !((campi[i]).equals(""))) {
+					//prezzo = true;					
 					if (cc==1) {
 						query = "SELECT * FROM libri_table WHERE prezzo=?";
 					} else {
 						query = query + " AND prezzo=?";
 					}
 					prezzo=cc++;
+					//primo = false;
 				}
 			}
 			System.out.println("titolo->"+titolo);
@@ -1778,6 +1989,7 @@ public class Server {
 			int i = 0;
 			rs.beforeFirst();
 			while (rs.next()) {
+				// for (int i = 0; i <= numero; i++) {
 				if (i < numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
@@ -1808,7 +2020,7 @@ public class Server {
 		}
 		try {
 			String query = "SELECT * FROM libri_table WHERE titolo LIKE ? OR autore LIKE ? OR anno LIKE ? "
-					+ "OR casa_editrice LIKE ? OR ISBN LIKE ? OR voto LIKE ? OR lingua LIKE ?";
+					+ "OR casa_editrice LIKE ? OR ISBN LIKE ? OR genere LIKE ? OR voto LIKE ? OR lingua LIKE ?";
 			PreparedStatement prstmt = con.prepareStatement(query);
 			prstmt.setString(1, "%"+campo+"%");
 			prstmt.setString(2, "%"+campo+"%");
@@ -1817,6 +2029,7 @@ public class Server {
 			prstmt.setString(5, "%"+campo+"%");
 			prstmt.setString(6, "%"+campo+"%");
 			prstmt.setString(7, "%"+campo+"%");
+			prstmt.setString(8, "%"+campo+"%");
 			ResultSet rs = prstmt.executeQuery();
 			System.out.println(prstmt.toString());
 			if ((numero = contaLibri(prstmt.toString())) == 0) {
@@ -1830,6 +2043,7 @@ public class Server {
 			rs.beforeFirst();
 			int i=0;
 			while (rs.next()) {
+				//for (int i = 0; i < numero; i++) {
 				if(i<numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
@@ -1846,7 +2060,6 @@ public class Server {
 			prstmt.close();
 		} catch (SQLException e) {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
-			e.printStackTrace();
 			return risultato;
 		}
 		System.out.println("tutto okei\n");
@@ -1881,6 +2094,7 @@ public class Server {
 			rs.beforeFirst();
 			int i = 0;
 			while (rs.next()) {
+				// for (int i = 0; i < numero; i++) {
 				if (i < numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
@@ -1925,6 +2139,7 @@ public class Server {
 			rs.beforeFirst();
 			int i = 0;
 			while (rs.next()) {
+				// for (int i = 0; i < numero; i++) {
 				if (i < numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
@@ -1969,6 +2184,7 @@ public class Server {
 			rs.beforeFirst();
 			int i = 0;
 			while (rs.next()) {
+				// for (int i = 0; i < numero; i++) {
 				if (i < numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
@@ -1991,6 +2207,7 @@ public class Server {
 		return risultato;
 	}
 
+	/* Conviene convertire l'anno in int? */
 	public String[][] ricercaAnno(String campo) {
 		int numero = 0;
 		String[][] risultato = null;
@@ -2013,6 +2230,7 @@ public class Server {
 			rs.beforeFirst();
 			int i = 0;
 			while (rs.next()) {
+				// for (int i = 0; i < numero; i++) {
 				if (i < numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
@@ -2057,6 +2275,7 @@ public class Server {
 			rs.beforeFirst();
 			int i = 0;
 			while (rs.next()) {
+				// for (int i = 0; i < numero; i++) {
 				if (i < numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
@@ -2101,6 +2320,7 @@ public class Server {
 			rs.beforeFirst();
 			int i = 0;
 			while (rs.next()) {
+				// for (int i = 0; i < numero; i++) {
 				if (i < numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
@@ -2154,6 +2374,7 @@ public class Server {
 			ResultSet rs = prstmt.executeQuery();
 			int i=0;
 			while (rs.next()) {
+				//for (int i = 0; i < numero; i++) {
 				if(i<numero) {
 					risultato[i][1] = rs.getString("ISBN");
 					risultato[i][6] = rs.getString("sconto");
@@ -2176,6 +2397,7 @@ public class Server {
 			System.out.println(prstmt.toString());
 			int i=0;
 			while (rs.next()) {
+				//for (int i = 0; i < numero; i++) {
 				if(i<numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][2] = rs.getString("autore");
@@ -2200,6 +2422,7 @@ public class Server {
 		return risultato;
 	}
 
+	/* Conviene convertire l'anno in double? */
 	public String[][] ricercaVoto(String campo) {
 		int numero = 0;
 		String[][] risultato = null;
@@ -2222,6 +2445,7 @@ public class Server {
 			rs.beforeFirst();
 			int i = 0;
 			while (rs.next()) {
+				// for (int i = 0; i < numero; i++) {
 				if (i < numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
@@ -2244,6 +2468,7 @@ public class Server {
 		return risultato;
 	}
 
+	/* Conviene convertire l'anno in double? */
 	public String[][] ricercaPrezzo(String campo) {
 		int numero = 0;
 		String[][] risultato = null;
@@ -2266,6 +2491,7 @@ public class Server {
 			rs.beforeFirst();
 			int i = 0;
 			while (rs.next()) {
+				// for (int i = 0; i < numero; i++) {
 				if (i < numero) {
 					risultato[i][0] = rs.getString("titolo");
 					risultato[i][1] = rs.getString("autore");
