@@ -82,6 +82,7 @@ public class Server {
 			prstmt2.close();
 			prstmt3.close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			return 7;
 		}
@@ -337,7 +338,7 @@ public class Server {
 		try{
 			String query;
 			PreparedStatement prstmt;
-			if(!campi[0].equals("")&&!campi[1].equals("")) {
+			if(!campi[0].equals("")) {
 				if(checkPasswordUsers(campi[10],campi[0])) {
 					query = "UPDATE users SET password=? WHERE nickname=?;";
 					prstmt = con.prepareStatement(query);
@@ -368,14 +369,19 @@ public class Server {
 			prstmt.setString(4, campi[5]);
 			prstmt.setString(5, campi[6]);
 			if(campi[7].equals("")) {
-				prstmt.setNull(6, java.sql.Types.INTEGER);
+				prstmt.setNull(6, java.sql.Types.VARCHAR);
 			}
 			else {
-				prstmt.setInt(6, Integer.valueOf(campi[7]).intValue());
+				prstmt.setString(6, campi[7]);
 			}
 			prstmt.setString(7, campi[8]);
-			prstmt.setString(8, campi[9]);			
-			prstmt.setDate(9, data.valueOf(campi[11]+"-"+campi[12]+"-"+campi[13]));
+			prstmt.setString(8, campi[9]);
+			if(campi[11].equals("")||campi[11].equals("")||campi[11].equals("")) {
+				prstmt.setNull(9, java.sql.Types.DATE);
+			}
+			else {
+				prstmt.setDate(9, data.valueOf(campi[11]+"-"+campi[12]+"-"+campi[13]));
+			}
 			prstmt.setString(10, campi[10]);
 			prstmt.executeUpdate();
 			prstmt.close();
@@ -396,7 +402,7 @@ public class Server {
 			String query;
 			PreparedStatement prstmt;
 			/*Controllo per eventuale cambio password*/
-			if(!campi[0].equals("")&&!campi[1].equals("")) {
+			if(!campi[0].equals("")) {
 				if(checkPasswordLibrerie(campi[10],campi[0])) {
 					query = "UPDATE vendors SET password=? WHERE email=?;";
 					prstmt = con.prepareStatement(query);
@@ -1099,9 +1105,21 @@ public class Server {
 			prstmt.setString(1, ISBN);
 			ResultSet rs = prstmt.executeQuery();
 			if (rs.next()) {
-				query = "UPDATE libri_table SET voto=((voto+?)/2) WHERE ISBN=?";
+				double voto2=0;
+				query= "SELECT AVERAGE(voto) AS voto WHERE ISBN=?";
 				prstmt = con.prepareStatement(query);
-				prstmt.setInt(1, voto);
+				prstmt.setString(1, ISBN);
+				rs=prstmt.executeQuery(query);
+				if(rs.next()==false) {
+					return -4;
+				}
+				rs.beforeFirst();
+				while(rs.next()) {
+					voto2=rs.getDouble("voto");
+				}
+				query = "UPDATE libri_table SET voto=? WHERE ISBN=?";
+				prstmt = con.prepareStatement(query);
+				prstmt.setDouble(1, voto2);
 				prstmt.setString(2, ISBN);
 				prstmt.executeUpdate();
 			}
@@ -1785,7 +1803,7 @@ public class Server {
 				prstmt.setString(anno, campi[4]);
 			}
 			if (voto !=-1) {
-				prstmt.setString(voto, campi[5]);
+				prstmt.setDouble(voto, (Double.valueOf(campi[5]).doubleValue()));
 			}
 			if (lingua !=-1) {
 				prstmt.setString(lingua, campi[6]);
@@ -1813,7 +1831,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getDouble("voto"));
 				}
 				i++;
 			}
@@ -1865,7 +1883,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getString("voto"));
 				}
 				i++;
 			}	
@@ -1916,7 +1934,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getString("voto"));
 				}
 				i++;
 			}
@@ -1960,7 +1978,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getString("voto"));
 				}
 				i++;
 			}
@@ -2004,7 +2022,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getString("voto"));
 				}
 				i++;
 			}
@@ -2048,7 +2066,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getString("voto"));
 				}
 				i++;
 			}
@@ -2092,7 +2110,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getString("voto"));
 				}
 				i++;
 			}
@@ -2136,7 +2154,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getString("voto"));
 				}
 				i++;
 			}
@@ -2257,7 +2275,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getDouble("voto"));
 				}
 				i++;
 			}
@@ -2301,7 +2319,7 @@ public class Server {
 					risultato[i][4] = rs.getString("ISBN");
 					risultato[i][5] = rs.getString("prezzo");
 					risultato[i][6] = rs.getString("lingua");
-					risultato[i][7] = rs.getString("voto");
+					risultato[i][7] = String.valueOf(rs.getDouble("voto"));
 				}
 				i++;
 			}
@@ -2319,7 +2337,7 @@ public class Server {
 		if (!connectDatabase()) {
 			return -1;
 		}
-		String address="/var/www/"+percorso;
+		String address="/usr/local/apache2/htdocs/"+percorso;
 		try {
 			System.out.println(address);
 			Base64 decoder=new Base64();
@@ -2370,3 +2388,4 @@ public class Server {
 		return risultato;
 	}
 }
+
