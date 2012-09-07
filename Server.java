@@ -1,5 +1,6 @@
 package Libreria;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,6 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.axis.encoding.Base64;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
 public class Server {
 
@@ -40,12 +43,6 @@ public class Server {
 	public int iscrizioneUser(String nickuser,String passwd,String passwdc, String email) {
 		if (!connectDatabase()) {
 			return 2;
-		}
-		if (!(checkPassword(passwd))) {
-			return 3;
-		}
-		if (!(passwd.equals(passwdc))) {
-			return 4;
 		}
 		System.out.println("Password corretta.\n");
 		try {
@@ -94,12 +91,6 @@ public class Server {
 			String partitaIva) {
 		if (!connectDatabase()) {
 			return 2;
-		}
-		if (!(checkPassword(passwd))) {
-			return 3;
-		}
-		if (!(passwd.equals(passwdc))) {
-			return 4;
 		}
 		System.out.println("Password corretta.\n");
 		try {
@@ -317,24 +308,6 @@ public class Server {
 		if (!connectDatabase()) {
 			return -1;
 		}
-		for(int i=0;i<14;i++) {
-			System.out.println(i+"=>"+campi[i]);
-		}
-		/*campi[0]=password old;
-		 * campi[1]= password new;
-		 * campi[2]=email;
-		 * campi[3]=nome_utente;
-		 * campi[4]=cognome;
-		 * campi[5]=indirizzo;
-		 * campi[6]=citta;
-		 * campi[7]=cap;
-		 * campi[8]=telefono
-		 * campi[9]=telefono2;
-		 * campi[10]=nickuser;
-		 * campi[11]=anno
-		 * campi[12]=mese
-		 * campi[13]=giorno 
-		 */
 		try{
 			String query;
 			PreparedStatement prstmt;
@@ -2319,6 +2292,13 @@ public class Server {
 		}
 		return risultato;
 	}
+	
+	/*public String leggiPDF() {
+		String address="/var/www/descrizione.pdf";
+		try {
+			File of=
+		}
+	}*/
 
 	public int uploadAvatar(String percorso,String image,String username) {
 		if (!connectDatabase()) {
@@ -2354,6 +2334,40 @@ public class Server {
 	
 	public String cercaAvatar(String username) {
 		String risultato=null;
+		String location=null;
+		if (!connectDatabase()) {
+			return risultato;
+		}
+		try {
+			String query="SELECT location FROM users WHERE nickname=?";
+			PreparedStatement prstmt = con.prepareStatement(query);
+			prstmt.setString(1,username);
+			ResultSet rs=prstmt.executeQuery();
+			if(rs.next()==false) {
+				return risultato;
+			}
+			else {
+				location=rs.getString("location");
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return risultato;
+		}
+		try {
+			BufferedImage image = ImageIO.read(new File(location));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(image,"png",baos);
+			Base64 encoder=new Base64();
+			risultato=encoder.encode(baos.toByteArray());
+		} catch(IOException e) {
+			e.printStackTrace();
+			return risultato;
+		}
+		return risultato;
+	}
+	
+	/*public String cercaAvatar(String username) {
+		String risultato=null;
 		if (!connectDatabase()) {
 			return risultato;
 		}
@@ -2373,6 +2387,6 @@ public class Server {
 			return risultato;
 		}
 		return risultato;
-	}
+	}*/
 }
 
