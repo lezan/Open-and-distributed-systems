@@ -930,8 +930,10 @@ public class Server {
 			prstmt.setString(1, isbn);
 			ResultSet rs = prstmt.executeQuery();
 			if (rs.next()==false) {
+				System.out.println("Problema ne rs di leggiVoto");
 				return voto;
 			}
+			System.out.println(rs.getDouble("voto"));
 			voto = rs.getDouble("voto");
 			rs.close();
 			prstmt.close();
@@ -939,6 +941,7 @@ public class Server {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 		}
+		System.out.println(voto);
 		return voto;
 	}
 
@@ -1105,21 +1108,9 @@ public class Server {
 			prstmt.setString(1, ISBN);
 			ResultSet rs = prstmt.executeQuery();
 			if (rs.next()) {
-				double voto2=0;
-				query= "SELECT AVERAGE(voto) AS voto WHERE ISBN=?";
+				query = "UPDATE libri_table SET voto=(SELECT AVG(voto) AS voto_media FROM voti_libri WHERE ISBN=?) WHERE ISBN=?";
 				prstmt = con.prepareStatement(query);
 				prstmt.setString(1, ISBN);
-				rs=prstmt.executeQuery(query);
-				if(rs.next()==false) {
-					return -4;
-				}
-				rs.beforeFirst();
-				while(rs.next()) {
-					voto2=rs.getDouble("voto");
-				}
-				query = "UPDATE libri_table SET voto=? WHERE ISBN=?";
-				prstmt = con.prepareStatement(query);
-				prstmt.setDouble(1, voto2);
 				prstmt.setString(2, ISBN);
 				prstmt.executeUpdate();
 			}
@@ -1365,11 +1356,6 @@ public class Server {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			return null;
 		}
-		for(int i=0;i<numero;i++) {
-			for(int j=0;j<3;j++) {
-				System.out.println("["+i+","+j+"]"+risultato[i][j]);
-			}
-		}
 		return risultato;
 	}
 
@@ -1481,6 +1467,7 @@ public class Server {
 			prstmt.executeUpdate();
 			prstmt.close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			return 3;
 		}
@@ -2337,7 +2324,7 @@ public class Server {
 		if (!connectDatabase()) {
 			return -1;
 		}
-		String address="/usr/local/apache2/htdocs/"+percorso;
+		String address="/var/www/"+percorso;
 		try {
 			System.out.println(address);
 			Base64 decoder=new Base64();
