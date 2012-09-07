@@ -666,7 +666,7 @@ public class Server {
 		} catch (SQLException e) {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
-			return risultato;
+			return null;
 		}
 		return risultato;
 	}
@@ -981,7 +981,7 @@ public class Server {
 				System.out.println("Il libro cercato non è presente.\n");
 				return 3;
 			} else {
-				query = "DELETE FROM libri_venditore WHERE ISBN=? AND nome=?;";
+				query = "DELETE FROM libro_venditore WHERE ISBN=? AND nome=?;";
 				prstmt = con.prepareStatement(query);
 				prstmt.setString(1, ISBN);
 				prstmt.setString(2, nomeLibreria);
@@ -1501,7 +1501,7 @@ public class Server {
 		int numero = 0;
 		String risultato[][] = null;
 		if (!connectDatabase()) {
-			return risultato;
+			return null;
 		}
 		numero = leggiNumeroRecensioni(isbn);
 		risultato = new String[numero][4];
@@ -1511,7 +1511,6 @@ public class Server {
 			prstmt.setString(1, isbn);
 			ResultSet rs = prstmt.executeQuery();
 			if (rs.next() == false) {
-				risultato[0][0] = "";
 				return risultato;
 			}
 			int i=0;
@@ -1567,7 +1566,8 @@ public class Server {
 			}
 			query = "SELECT corpo_commento FROM commenti WHERE nickname=? AND ISBN=?;";
 			prstmt = con.prepareStatement(query);
-			prstmt.setString(1, isbn);
+			prstmt.setString(1, nickname);
+			prstmt.setString(2, isbn);
 			rs = prstmt.executeQuery();
 			if (rs.next()) {
 				corpo = rs.getString("corpo_commento");
