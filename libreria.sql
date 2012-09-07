@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generato il: Set 06, 2012 alle 16:50
+-- Generato il: Set 07, 2012 alle 10:05
 -- Versione del server: 5.1.63-0ubuntu0.11.10.1
 -- Versione PHP: 5.4.0
 
@@ -59,6 +59,14 @@ CREATE TABLE IF NOT EXISTS `libri_table` (
   KEY `nome_libreria` (`nome_libreria`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Dump dei dati per la tabella `libri_table`
+--
+
+INSERT INTO `libri_table` (`titolo`, `ISBN`, `autore`, `data_pubblicazione`, `voto`, `casa_editrice`, `anno`, `lingua`, `prezzo`, `nome_libreria`) VALUES
+('ilporco', '3412234234324', 'Nicola Piro', '2012-09-06 22:58:24', 0, 'Porcus Christi', 0, '', 11, 'grimanalibri'),
+('Into the wild', '9771973564394', 'Jon Krakauer', '2012-09-06 22:56:11', 0, 'Boh', 2007, 'Ita', 55, 'grimanalibri');
+
 -- --------------------------------------------------------
 
 --
@@ -73,6 +81,14 @@ CREATE TABLE IF NOT EXISTS `libro_venditore` (
   PRIMARY KEY (`nome`,`ISBN`),
   KEY `ISBN` (`ISBN`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dump dei dati per la tabella `libro_venditore`
+--
+
+INSERT INTO `libro_venditore` (`nome`, `ISBN`, `sconto`, `copie`) VALUES
+('grimanalibri', '3412234234324', 0, 24),
+('grimanalibri', '9771973564394', 11, 12);
 
 -- --------------------------------------------------------
 
@@ -90,16 +106,26 @@ CREATE TABLE IF NOT EXISTS `users` (
   `cognome` varchar(30) DEFAULT NULL,
   `indirizzo` varchar(30) DEFAULT NULL,
   `citta` varchar(30) DEFAULT NULL,
-  `cap` int(8) DEFAULT NULL,
+  `cap` varchar(5) DEFAULT NULL,
   `telefono` varchar(15) DEFAULT NULL,
   `telefono2` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`nickname`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `indirizzo` (`indirizzo`,`citta`,`cap`),
   UNIQUE KEY `telefono` (`telefono`),
-  UNIQUE KEY `telefono2` (`telefono2`),
-  UNIQUE KEY `location` (`location`)
+  UNIQUE KEY `telefono2` (`telefono2`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dump dei dati per la tabella `users`
+--
+
+INSERT INTO `users` (`nickname`, `password`, `email`, `location`, `data_nascita`, `nome`, `cognome`, `indirizzo`, `citta`, `cap`, `telefono`, `telefono2`) VALUES
+('arthur', 'password', 'capozzi@gmail.com', 'default', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+('forgione', 'password', 'darkfall@forgino.com', 'default', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+('padrepio', 'lamadonna', 'diocane@porcodio.com', 'default', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+('parcusro', 'password', 'robert.parcus@gmail.com', 'default', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+('pilli', 'sonofascio', 'fascio@gmail.com', 'default', NULL, 'Nicola', 'Pilli', 'Piazza Mussolini 15', 'Littoria', '06100', '', '');
 
 -- --------------------------------------------------------
 
@@ -115,10 +141,19 @@ CREATE TABLE IF NOT EXISTS `vendors` (
   `citta` varchar(30) NOT NULL,
   `cap` varchar(10) NOT NULL,
   `partita_iva` varchar(15) NOT NULL,
+  `telefono` varchar(10) DEFAULT NULL,
+  `fax` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`nome`),
   UNIQUE KEY `email` (`email`,`partita_iva`),
   UNIQUE KEY `indirizzo` (`indirizzo`,`citta`,`cap`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dump dei dati per la tabella `vendors`
+--
+
+INSERT INTO `vendors` (`nome`, `password`, `email`, `indirizzo`, `citta`, `cap`, `partita_iva`, `telefono`, `fax`) VALUES
+('grimanalibri', 'password', 'book@grimanalibri.com', 'Piazza Fortebraccio 1', 'Perugia', '06100', 'dsagsadgasdgasg', '0755734650', NULL);
 
 -- --------------------------------------------------------
 
