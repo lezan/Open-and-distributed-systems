@@ -1,7 +1,11 @@
 package Libreria;
 
-import java.io.ByteArrayOutputStream;
+//import java.io.ByteArrayOutputStream;
+//import java.io.BufferedInputStream;
+//import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,8 +15,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.axis.encoding.Base64;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
+//import java.awt.image.BufferedImage;
+//import javax.imageio.ImageIO;
 
 public class Server {
 
@@ -225,8 +229,7 @@ public class Server {
 			rs.close();
 			prstmt.close();
 		} catch (SQLException e) {
-			System.out
-					.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
+			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			e.printStackTrace();
 			return false;
 		}
@@ -2293,12 +2296,27 @@ public class Server {
 		return risultato;
 	}
 	
-	/*public String leggiPDF() {
+	public String leggiPDF() {
 		String address="/var/www/descrizione.pdf";
+		String risultato=null;
 		try {
-			File of=
+			File file = new File(address);
+			FileInputStream fin= new FileInputStream(file);
+			byte[] pdfByte=new byte[(int)file.length()];
+			fin.read(pdfByte);
+			Base64 encoder= new Base64();
+			risultato=encoder.encode(pdfByte);
+			//System.out.println(risultato);
+			fin.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch(IOException e1) {
+			e1.printStackTrace();
+			return null;
 		}
-	}*/
+		return risultato;
+	}
 
 	public int uploadAvatar(String percorso,String image,String username) {
 		if (!connectDatabase()) {
@@ -2331,7 +2349,7 @@ public class Server {
 		}
 		return 0;
 	}
-	
+	/*
 	public String cercaAvatar(String username) {
 		String risultato=null;
 		String location=null;
@@ -2364,9 +2382,9 @@ public class Server {
 			return risultato;
 		}
 		return risultato;
-	}
+	}*/
 	
-	/*public String cercaAvatar(String username) {
+	public String cercaAvatar(String username) {
 		String risultato=null;
 		if (!connectDatabase()) {
 			return risultato;
@@ -2387,6 +2405,6 @@ public class Server {
 			return risultato;
 		}
 		return risultato;
-	}*/
+	}
 }
 
