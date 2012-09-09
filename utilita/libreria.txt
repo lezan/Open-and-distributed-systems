@@ -1,0 +1,301 @@
+{| cellpadding="10" cellspacing="0" border="1" style="text-align:center;"
+|+'''commenti'''
+|- style="background:#ffdead;"
+! style="background:#ffffff" | 
+ | id
+ | nickname
+ | ISBN
+ | corpo_commento
+ | data
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Type
+ | int(11)
+ | varchar(30)
+ | varchar(30)
+ | varchar(1000)
+ | timestamp
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Null
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Default
+ | 
+ | 
+ | 
+ | 
+ | CURRENT_TIMESTAMP
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Extra
+ | auto_increment
+ | 
+ | 
+ | 
+ | 
+|}
+
+
+
+{| cellpadding="10" cellspacing="0" border="1" style="text-align:center;"
+|+'''libri_table'''
+|- style="background:#ffdead;"
+! style="background:#ffffff" | 
+ | titolo
+ | ISBN
+ | autore
+ | data_pubblicazione
+ | voto
+ | casa_editrice
+ | anno
+ | lingua
+ | prezzo
+ | nome_libreria
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Type
+ | varchar(30)
+ | varchar(30)
+ | varchar(30)
+ | timestamp
+ | double
+ | varchar(30)
+ | int(4)
+ | varchar(30)
+ | double
+ | varchar(30)
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Null
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | YES
+ | YES
+ | YES
+ | NO
+ | NO
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Default
+ | 
+ | 
+ | 
+ | CURRENT_TIMESTAMP
+ | 0
+ | 
+ | 
+ | 
+ | 0
+ | 
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Extra
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+|}
+
+
+
+{| cellpadding="10" cellspacing="0" border="1" style="text-align:center;"
+|+'''libro_venditore'''
+|- style="background:#ffdead;"
+! style="background:#ffffff" | 
+ | nome
+ | ISBN
+ | sconto
+ | copie
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Type
+ | varchar(30)
+ | varchar(30)
+ | int(2)
+ | int(4)
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Null
+ | NO
+ | NO
+ | NO
+ | NO
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Default
+ | 
+ | 
+ | 
+ | 
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Extra
+ | 
+ | 
+ | 
+ | 
+|}
+
+
+
+{| cellpadding="10" cellspacing="0" border="1" style="text-align:center;"
+|+'''users'''
+|- style="background:#ffdead;"
+! style="background:#ffffff" | 
+ | nickname
+ | password
+ | email
+ | location
+ | data_nascita
+ | nome
+ | cognome
+ | indirizzo
+ | citta
+ | cap
+ | telefono
+ | telefono2
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Type
+ | varchar(30)
+ | varchar(30)
+ | varchar(30)
+ | varchar(50)
+ | date
+ | varchar(30)
+ | varchar(30)
+ | varchar(30)
+ | varchar(30)
+ | int(8)
+ | varchar(15)
+ | varchar(15)
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Null
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Default
+ | 
+ | 
+ | 
+ | default
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Extra
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+|}
+
+
+
+{| cellpadding="10" cellspacing="0" border="1" style="text-align:center;"
+|+'''vendors'''
+|- style="background:#ffdead;"
+! style="background:#ffffff" | 
+ | nome
+ | password
+ | email
+ | indirizzo
+ | citta
+ | cap
+ | partita_iva
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Type
+ | varchar(30)
+ | varchar(30)
+ | varchar(30)
+ | varchar(30)
+ | varchar(30)
+ | varchar(10)
+ | varchar(15)
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Null
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+ | NO
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Default
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Extra
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+ | 
+|}
+
+
+
+{| cellpadding="10" cellspacing="0" border="1" style="text-align:center;"
+|+'''voti_libri'''
+|- style="background:#ffdead;"
+! style="background:#ffffff" | 
+ | ISBN
+ | username
+ | voto
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Type
+ | varchar(30)
+ | varchar(30)
+ | double
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Null
+ | NO
+ | NO
+ | NO
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Default
+ | 
+ | 
+ | 
+|- style="background:#f9f9f9;"
+! style="background:#f2f2f2" | Extra
+ | 
+ | 
+ | 
+|}
+
+
+

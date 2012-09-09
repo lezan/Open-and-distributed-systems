@@ -1,0 +1,221 @@
+INTRODUZIONE
+
+Strumenti utilizzati e linguaggi scelti.
+
+L'obiettivo del progetto è implementare un web service che simuli una libreria distribuita. Per fare questo abbiamo utilizzato tre strumenti:
+ - Apache tomcat (7.0.29);
+ - Apache axis2 (1.6.2);
+ - Apache httpd (2.4.1);
+ Apache tomcat è un servelet container per pagina JSP e fornisce una piattoforma in grado di supportare l'esecuzione di applicazioni sviluppate con il linguaggio Java.
+ Apache axis2, invece, è l'egine del Web Services e mette a disposizione una struttura per creare, pubblicare e consumare Web service, sia in Java sia in C. Permette, inoltre, lo scambio di messaggi SOAP e l'utilizzo del WSDL.
+ Apache httpd è un http Web server e realizza le funzioni di trasporto delle informazioni e di collegamento.
+ Abbiamo scelto di utilizzare il linguaggio Java per la realizzazione del server, mentre PHP e HTML per realizzare la parte client.
+ Il vantaggio principale che deriva da queste scelte è che l'utente può usufruire e consumare il web service semplicemente attraverso un broswer. Non ha bisogno quindi di applicazioni particolari o software specifici, ma soltanto di un broswer.
+Abbiamo, inoltre, utilizzato piccole parti di codice JavaScript - quindi lato client - per controlli, che altrimenti sarebbero stati impossibili con il solo utilizzo di PHP e HTML.
+
+ATTORI
+
+Chi può consumare il nostro web service?
+
+Come già detto nell'introduzione, chiunque dotato di un broswer può usufruire del nostro servizio.
+Il sito web è consultabile in tre differenti modi:
+ - da utente registrato;
+ - da libreria registrata;
+ - da visitatore;
+Nessuna funzionalità è stata sottratta al visitatore non registrato, così da permettere a tutti di utilizzare il servizio.
+Ovviamente, ci sono dei limiti; infatti è impossibile per il visitatore poter lasciare una recensione al libro, votare, oppure aggiungere un libro al catalogo. Questo non è stato fatto per limiare questa categoria di utenti, bensì per un fatto puramente tecnico: nel database non avremmo avuti i dati necessari da inserire.
+
+Cosa può fare il visitatore?
+
+Il visitatore può vedere le recensione inserite su ogni libro, consultare tutto il catalogo e vedere ogni dato del libro, effettuare ricerche (anche quelle avanzate)
+
+Cosa può fare l'utente registrato?
+
+L'utente può inserire recensioni (modificarle o anche cancellarle), consultare il catalogo ed effettuare ogni tipo di ricerca.
+
+Cosa può fare la libreria?
+
+La libreria può inserire nuovi libri al catalogo e alla propria libreria personale (specificando sconto e copie da lei possedute), può modificare i dati del libro inseriti, effettuare ricerche.
+
+Come si può vedere, la registrazione (specialmente quella utente) non offre molte più funzionalità rispetto al visitatore e questo è stato voluto: il nostro obiettivo era  un servizio che fosse accessibile, senza limitazioni e con la minima diffusione di dati personali.
+Inoltre, è stata prevista (ma non implementata) la possibilità da parte dell'utente registrato di acquistare libri dalle librerie, consultanto il catalogo e scegliendo la libreria che ha l'offerta migliore su quel libro.
+
+APACHE HTTPD
+
+Non c'è molto da dire riguardo all'utilizzo di Apache.
+Soltanto piccole modifiche sono state apportate al file di configurazione httpd.conf per permettere il RewriteRule.
+Invece, c'è qualcosa da dire riguardo all'utilizzo del file di configurazione htaccess.
+
+htaccess e RewriteRule.
+
+L'utilizzo della riscrittura degli url è stato di fondamentale importanza e ci ha permesso di utilizzare una pagina PHP per un numero infinito di casi.
+Che cosa significa?
+Faccio un esempio e spiego meglio.
+Prendiamo il caso della pagina PHP libro.php; come vedremo nel dettaglio in seguito, basti sapere che tale pagina mostra tutte le informazioni relative ad un libro. E' chiaro che - trattandosi di una libreria - potenzialmente i libri sono infiniti ed è impossibile prevedere una pagina specifica per ogni libro; ma allora come fare per realizzare una sola pagina per tutti i libri? 
+Ecco che allora ci serviamo del RewriteEngine; la riscrittura degli url ci consente proprio questo: convertire una richiesta ad un url differente.
+Vediamo ora l'esempio per capire meglio.
+Mettiamo che vogliamo vedere le informazioni relative ad un libro che ha ISBN '3n4j6jjdje03'.
+Il link che l'utente vedrà sarà www.miosito.org/books/3n4j6jjdje03.
+A questo punto entra in gioco la RewriteEngine e converte quell'url in libro.php?ISBN=3n4j6jjdje03.
+La pagina PHP libro.php quindi legge come url libro.php?ISBN=3n4j6jjdje03 e non www.miosito.org/books/3n4j6jjdje03.
+A questo punto si recupera l'isbn dall'url in questo modo 
+
+	function getUrl() {
+ 		return substr($_SERVER["QUERY_STRING"],strrpos($_SERVER["QUERY_STRING"],"=")+1);
+	}
+	$isbn=getUrl();
+
+e in base a questo si mostra il libro voluto dal client.
+La RewriteRule necessaria nell'esempio fatto è
+	RewriteRule ^books/(.*) /libro.php?ISBN=$1
+
+Le informazioni utiliti alla riscrittura dell'url vengono prese dal file .htaccess
+Ecco il nostro:
+
+	Options +FollowSymLinks
+	RewriteEngine on
+	RewriteRule ^cancella/recensione/(.*) /rimuoviRecensione.php?ISBN=$1
+	RewriteRule ^modifica/recensione/(.*) /modificaRecensione.php?ISBN=$1
+	RewriteRule ^aggiungi/recensione/(.*) /aggiungiRecensione.php?ISBN=$1
+	RewriteRule ^modifica/libro/(.*) /modificaLibro.php?ISBN=$1
+	RewriteRule ^cancella/libro/(.*) /rimuoviLibro.php?ISBN=$1
+	RewriteRule ^books/(.*) /libro.php?ISBN=$1
+	RewriteRule ^autore/(.*) /autoreLibro.php?autore=$1
+	RewriteRule ^libreria/(.*) /profiloPubblicoLibreria.php?libreria=$1
+	RewriteRule ^modifica/catalogo/(.*) /modificaLibroCatalogo.php?ISBN=$1
+
+Tutto avviene ovviamente lato server e il client non si accorge di nulla.
+
+DATABASE
+
+DBMS scelto.
+
+Abbiamo optato per un RDMBS e nello specifico per MySQL.
+E' disponibile sia per sistemi operativi GNU/Linux, sia per Windows, sia per Unix, e questo ci permette - insieme a Java, HTML e PHP, di essere più cross-platform possibili.
+
+La base di dati e Java.
+
+Per la comunicazione tra Java - quindi server - e il database abbiamo utilizzato il driver JDBC (MySQL Connector/J, Tipo 4).
+JDBC è un connettore che consente l'accesso da qualsiasi programma scritto in Java, indipendentemente da DBMS utilizzato. 
+MySQL Connector/J è il connector specifico per Java e MySQL; Il Tipo 4 è stato scelto perché fornisce più funzionalità e maggiore performance rispetto a tutti gli altri (Tipo 1, 2, 3); è scritto totalmente in Java e quindi - ancora una volta - questo ci garantisce un maggiore cross-platform. L'unico neo del Tipo 4 è che ogni DBMS ha il suo connector, quindi se si vuole cambiare DBMS occorre cambiare il driver. Nonostante questo, abbiamo ritenuto questa la scelta migliore: se si vuol cambiare DMBS basterà cambiare la sola funzione di connessione al database e l'import. Il resto sono tutti vantaggi rispetto all'altri Tipi.
+Saranno soltanto le funzioni scritte in Java ad interfacciarsi al database, quindi PHP non avrà nessun accesso alla base; ogni interrogazione necessaria del client sarà demandata alle funzioni Java che si faranno carico di ricevere la chiamata da PHP, interrogare il dabase, recuperare i dati necessari e trasmetterli a PHP.
+
+I dettagli implementativi.
+
+Vediamo ora come avviene effettivamente la connessione al database e quali sono gli import necessari.
+Cominciamo dagli import:
+ - import java.sql.Connection: è la classe che implementa l'oggetto necessario a mentere la sessione di connessione al database;
+ - import java.sql.DriverManager: è la classe che stabilisce la connessione al database;
+ - import java.sql.PreparedStatement è la classe che implementa l'oggetto che ci consente di effettuare query al database evitando possibili complicazioni derivanti da query maligne;
+ - import java.sql.ResultSet: è la classe che implementa l'oggetto necessario ad accogliere i risultati prelevati dalla query al database;
+ - import java.sql.SQLException: è la classe che implementa la cattura dell'eccezione sollevata da qualunque istruzione che fa riferimento al database;
+
+connectDatabase() è la funzione che si fa carico di stabilire e mantere la connessione al database.
+Attraverso l'istruzione
+	Class.forName("com.mysql.jdbc.Driver").newInstance();
+viene caricata la classe del driver JDBC e generata una nuova istanza.
+In questo modo, invece, si crea la connessione al database.
+	con = DriverManager.getConnection(url, username, password);
+dove con è un oggetto Connection, dichiarato come variabile globale così da renderlo accessibile a tutti i metodi della classe Server.
+url, username e password sono stringhe che contengono i dati per l'accesso al database.
+connectDatabase è richiamata da ogni funzione che deve operare sulla base, per controllare se la connessione è stabilita e - in caso negativo - di effettuarla.
+
+Connector/J e Tomcat.
+
+Dato che si tratta di un web service, e stiamo utilizzando Apache Tomcat, dobbiamo rendere disponibile a questo il driver.
+E' un operazione necessaria, perché se Tomcat non ha il driver, non può far connettere al database.
+Per fare questo è necessario inserire in $CATALINA_HOME/common/lib il file .jar del Connector/J; in questo modo il driver sarà disponibile a tutte le applicazioni all'intero del container.
+
+QUA INSERIAMO l'immagine del diagramma EER.
+
+QUA INSERIAMO il file descrizioneDatabase.txt.
+
+In che modo si è gestito il database?
+
+Per gestire il database ci siamo affidati a phpmyadmin.
+Fornisce un ottima GUI ed elimina molti dei problemi dovuti all'utilizzo di MySQL da terminale.
+
+
+JAVA.
+
+In che ambiente è stato sviluppato il codice Java? Come lavorano e a cosa servono le funzioni?
+
+Per sviluppare il codice ci siamo affidati all'ambiente di sviluppo integrato Eclipse.
+La versione da noi utilizzata è la Eclipse Java EE IDE for Web Developers, Juno Release.
+Inizialmente ci siamo serviti dell'IDE solo per sviluppare il codice, quindi come mero editor di testo; successivamente abbiamo scelto di utilizzare Eclipse per lo sviluppo dell'intero progetto; infatti abbiamo demandato ad Eclipse la gestione del Server Tomcat e sviluppato con i suoi strumenti un progetto web dinamico.
+Questa scelta penso si sia rivelata ottima, perché seppur all'inizio ha richiesto un maggior impiego di tempo dovuto alla configurazione dell'IDE e al prendere consapevolezza degli strumenti su cui dovevamo operare, nel seguito ci ha semplificato e velocizzato lo sviluppo dell'applicazione.
+
+QUA CI METTIAMO UNA FOTO DI ECLIPSE.
+
+Eclipse e Tomcat.
+
+Come detto, la gestione del server Tomcat è stata affidata all'IDE e quindi la pubblicazione, l'avvio, il restart e lo stop avvenivano utilizzando gli strumenti messi a disposizione da Eclipse.
+
+Le funzioni Java.
+
+QUA INSERIAMO descrizioneFunzioniJava.txt
+
+SITO WEB
+
+Che linguaggi si è utilizzato? Le pagine quali sono? A cosa servono?
+
+Il sito web è stato sviluppato utilizzando PHP, HTML, CSS e JavaScript.
+Sia PHP sia JavaScript ci hanno permesso di generare pagine dinamiche, senza le quali non si sarebbe potuto realizzare nulla.
+In particolare,
+ . PHP: ha svolto il ruolo maggiore; lo abbiamo utilizzando per recuperare dati dalle form, per controllare la login, per presentare differenti layout all'utente a seconda di chi fosse, per richiamare le funzioni Java;
+ . HTML: è servito per creare i layout e la struttura del sito web;
+ . CSS: il suo ruole è sempre quello, fornire un design accattivamente al noiossissimo HTML;
+ . JavaScript: è stato in quantità modifca; controlli sulla correttezza dei dati inseriti (così da non appesantire ulteriormente il server), recupero di qualche informazioni altrimenti impossibile da fare con altri strumenti (neanche PHP).
+ 
+Le pagine web e il loro contenuto.
+
+QUA INSERIAMO descrizionePHP.txt ( e magari qualche foto del sito web )
+
+COLLABORAZIONE E GITHUB
+
+Come lavorare in coppia? Come condividere il codice?
+
+Il progetto è stato sviluppato da due persone e quindi è sorto il problema di condividere il codice, senza perdere aggiornamenti e modifiche, perdendo meno tempo possibile.
+Inizialmente sono state vagliate diverse ipotesi: svn, ftp etc; ricordando lo sviluppo di pagine web, mentre svn lo sviluppo di veri e propri software.
+Alla fine ci siamo affidati a github; non conoscevamo lo strumento, ma lo sviluppo del progetto ci è sembrato un buon modo per capire il funzionamento di questo nuovo servizio.
+Github è uno dei tanti servizi che sono nati in seguito alla pubblicazione del software Git.
+Git è un sofware di controllo di versione distribuito sviluppato da Torvalds, ed è attualmente il sistema utilizzando dal kernel linux per il controllo versione.
+Github è un servizio web di hosting che appunto utilizza Git. C'è chi lo chiama social-code, cioè un social network per programmatori.
+Esiste un plugin da integrare su Eclipse, così da velocizzare ancora di più lo scambio di codice, ma abbiamo deciso di evitarlo ed affidarci direttamente a Git da riga di comando. Perché? Perché ci piace complicarci la vita con il terminale; perché dovevamo condividere altro codice che non veniva sviluppato su Eclipse.
+
+QUA CI METTIAMO UNA FOTO DI GITHUB e del terminale. LOL.
+
+Su che sistema operativi è stato sviluppato il codice?
+
+Il codice ( sia Java, che PHP che HTML) è stato sviluppato su differenti sistemi operativi. Poi, avendo lavorato in due sul progetto, ancora di più.
+Il codice è stato testato su:
+ - Ubuntu 11.10;
+ - Ubuntu 12.04;
+ - Fedora 16;
+ - Windows XP, SP3;
+ - Windows 7;
+ 
+QUA CI METTIAMO UNA FOTO DELLA HOME DOVE CI SONO LE INSTALLAZIONI DI APACHE,TOMCAT E AXIS2.
+ 
+Abbiamo però deciso di presentare il progetto su sistemi GNU/Linux.
+
+Chi ha lavorato sul progetto?
+
+Sul progetto abbiamo lavorato in due.
+Ci siamo divisi funzioni Java e pagine PHP.
+Ad ogni nuovo commit si procedeva al test del nuovo codice, cercando di commettere quante più cavolate un utente medio può commettere durante la sua navigazione.
+
+QUA CI METTIAMO LE FOTO NOSTRE. BASUHAUSHAS. 
+
+DEBUGING
+
+Come si è debugato il codice?
+
+Il debug non ha portato via più di tanto tempo, ma sicuramente il codice conterrà ancora diversi bug.
+L'utilizzo dell'IDE - in particolare di Eclipse - ha permesso, nei casi di più estremi, di ricorrere all'avvio del server Tomcat in modidalità debug, così da scovare l'errore che si celava all'interno dell'albero. Uno strumento veramente utile che fortunamente è stato utilizzato poche volte.
+Sicuramente i misteri più grandi sono stati sollevati da CSS e PHP che in maniera piuttosto randomica - almeno ai nostri occhi - producevano malfunzionamenti davvero esilaranti.
+
+
+
+
+ 

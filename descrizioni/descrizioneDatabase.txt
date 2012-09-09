@@ -1,0 +1,79 @@
+// Una descrizione - per ora piuttosto approssimativa - del database utilizzato.
+
+Tabella commenti:
+	La tabella tiene conto di tutte le recensioni che gli utenti posso rilasciare su di un libro.
+	
+	Struttura:
+	nickname, ISBN (unique);
+	id (int,auto increment, chiave primaria);
+	nickname (varchar, chiave esterna su users(nickname));
+	ISBN (varchar, chiave esterna su libri_table(ISBN));
+	corpo_commento (varchar);
+	data (timestamp, CURRENT_TIMESTAMP valore di default);
+	
+Tabella libri_table:
+	La tabella contiene il catalogo generale di tutti libri presenti.
+	
+	Struttura:
+	titolo (varchar);
+	ISBN (varchar, chiave primaria);
+	autore (varchar);
+	data_pubblicazione (timestamp, CURRENT_TIMESTAMP valore di default);
+	voto (double, 0 valore di default);
+	casa_editrice (varchar);
+	anno (int);
+	lingua (varchar);
+	prezzo (double);
+	nome_libreria (varchar, chiave esterna su vendors(nome));
+	
+Tabella libro_venditore
+	La tabella contiene tutti i libri messi a disposizione dalla librerie.
+	
+	Struttura:
+	nome, ISBN (chiave primaria);
+	nome (varchar, chiave esterna su vendors(nome));
+	ISBN (varchar, chiave esterna su libri_table(ISBN));
+	sconto (int);
+	copie (int);
+	
+Tabella users:
+	La tabella contiene tutti gli utenti iscritti al sito web.
+	
+	Struttura:
+	indirizzo, citta, cap (unique);
+	nickname (varchar, chiave primaria);
+	password (varchar);
+	email (varchar, unique);
+	location (varchar,unique, default valore di default);
+	data_nascita(date);
+	nome (varchar);
+	cognome (varchar);
+	indirizzo (varchar);
+	citta (varchar);
+	cap (varchar);
+	telefono (varchar, unique);
+	telefono2 (varchar, unique);
+	
+Tabella vendors:
+	La tabella contiene tutte le librerie iscritte al sito web.
+	
+	Struttura:
+	indirizzo, citta, cap (unique);
+	nome (varchar, chiave primaria);
+	password (varchar);
+	email (varchar, unique);
+	indirizzo (varchar);
+	citta (varchar);
+	cap (varchar);
+	telefono (varchar, unique);
+	fax (varchar, unique)
+	partita_iva (varchar, unique);
+	
+Tabella voti_libri:
+	La tabella contiene tutti i voti rilasciati dagli utenti su i libri.
+	
+	Struttura:
+	ISBN, nickname (chiave primaria);
+	ISBN (varchar, chiave esterna su libri_table(ISBN));
+	nickname (varchar, chiave esterna su users(ISBN));
+	voto (double);
