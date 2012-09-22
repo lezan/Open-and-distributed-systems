@@ -1677,7 +1677,8 @@ public class Server {
 			System.out.println("Errore. Impossibile eseguire l'operazione richiesta.\n");
 			return numero;
 		}
-		return numero;
+		System.out.println("Numero libri: "+numero);
+		return numero;		
 	}
 
 	public String[][] ricercaAvanzata(String[] campi) {
@@ -1775,8 +1776,10 @@ public class Server {
 				prstmt.setString(prezzo, campi[7]);
 			}
 			if ((numero = contaLibri(prstmt.toString())) == 0) {
+				System.out.println("Errore nel numero: "+numero);
 				return risultato;
 			}
+			System.out.println("Il numero è "+numero);
 			risultato = new String[numero][8];
 			ResultSet rs = prstmt.executeQuery();
 			if (!(rs.next())) {
